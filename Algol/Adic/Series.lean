@@ -5,7 +5,26 @@ structure AdicNumberSeries :=
   data : List Nat
 deriving Repr
 
+def List.joinBy : List String → String → String
+  | [], _ => ""
+  | x :: xs, c => xs.foldl (λ s t => s!"{s}{c}{t}") x
+
 namespace AdicNumberSeries
+
+-- adic, a, i
+def prettyTerm : Nat → Nat × Nat → String
+  | _   , (a, 0) => s!"{a}"
+  | adic, (a, 1) => s!"{a}\\cdot{adic}"
+  | adic, (a, i) => s!"{a}\\cdot{adic}^\{{i}}"
+
+def toTeX (series : AdicNumberSeries) :=
+  match series.data with
+    | [] => ""
+    | xs => xs 
+      |>.zip (List.range series.data.length)
+      |>.filter (λ ((x, _) : Nat × Nat) => x != 0)
+      |>.map (prettyTerm series.adic)
+      |>.joinBy " + "
 
 partial def fromNatAux (adic residue power : Nat) 
                        (data : List Nat) := 
@@ -51,13 +70,14 @@ def hasPowerSolution (a adic power : Nat) :=
       then some x else aux dec
   aux adic
 
-
+def hasSqrtSolution (a adic : Nat) := hasPowerSolution a adic 2
 
 -- #eval hasPowerSolution 2 7 2
 -- #eval hasPowerSolution 4 5 3
 
-
-def rootByEnum (a adic order n : Nat) := 
+-- order: the order of root
+-- n: the length of root approx list
+def rootByEnumAux (a adic order n : Nat) := 
   let power_go (acc power : Nat) := 
     let rec aux : Nat → Option Nat
       | 0 => none -- no solution
@@ -76,6 +96,12 @@ def rootByEnum (a adic order n : Nat) :=
         | none => xs
         | some x => xs ++ [x]
   coeff_go n
+
+def rootByEnum (a adic order n : Nat) : AdicNumberSeries := 
+  ⟨adic, rootByEnumAux a adic order n⟩
+
+def sqrtByEnumAux (a adic n : Nat) := rootByEnumAux a adic 2 n
+def sqrtByEnum (a adic n : Nat) := rootByEnum a adic 2 n
 
 -- #eval rootByEnum 2 7 2 5
 -- #eval rootByEnum 5 7 2 5
