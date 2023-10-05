@@ -4,6 +4,7 @@ import Algol.Adic.Series
 import Algol.Diophantus.Quadratic.PellEquation
 
 
+
 -- import Algol.Adic.Series
 
 #eval AdicNumberSeries.fromNat 5 998244353
