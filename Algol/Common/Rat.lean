@@ -1,7 +1,7 @@
 
 import Lean.Data.Rat
 
-open Lean
+namespace Lean
 
 namespace Rat
 
@@ -13,14 +13,8 @@ def ppow : Rat → Nat → Rat
 instance : Pow Rat Nat where
   pow := Rat.ppow
 
+def toTeX (r : Rat) := s!"\\frac\{{r.num}}\{{r.den}}"
+
 end Rat
 
-
-structure QPoint := 
-  x : Rat
-  y : Rat
-deriving Repr
-
--- namespace QPoint
-
--- end QPoint
+end Lean

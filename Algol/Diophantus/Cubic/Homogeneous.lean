@@ -1,8 +1,10 @@
 
 
-import Algol.Common.Rat
+import Algol.Common.QPoint
 
 open Lean
+
+namespace Plane
 
 -- x³ + y³ = a
 def doublePointX (P : QPoint) :=
@@ -11,4 +13,6 @@ def doublePointX (P : QPoint) :=
 
 def doublePointY (P : QPoint) := doublePointX (QPoint.mk P.y P.x)
 
+def doublePoint (P : QPoint) := QPoint.mk (doublePointX P) (doublePointY P)
 
+end Plane

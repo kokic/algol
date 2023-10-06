@@ -2,7 +2,7 @@
 
 import Algol.Adic.Series
 import Algol.Diophantus.Quadratic.PellEquation
-
+import Algol.Diophantus.Cubic.Homogeneous
 
 
 -- import Algol.Adic.Series
@@ -16,8 +16,6 @@ import Algol.Diophantus.Quadratic.PellEquation
 
 
 
-
-
 -- import Algol.Diophantus.Quadratic.PellEquation
 
 #eval PellSolution.seven 0 -- { p := 8, q := 3 }
@@ -27,6 +25,16 @@ import Algol.Diophantus.Quadratic.PellEquation
 
 
 
+-- import Algol.Diophantus.Cubic.Homogeneous
+
+def theP := QPoint.mk 1 2
+def the2P := Plane.doublePoint theP
+def the4P := Plane.doublePoint the2P
+def the8P := Plane.doublePoint the4P
+
+#eval the2P -- { x := (-17 : Rat)/7, y := (20 : Rat)/7 }
+#eval the4P -- { x := (188479 : Rat)/90391, y := (-36520 : Rat)/90391 }
+#eval the8P -- { x := (1243617733990094836481 : Rat)/609623835676137297449, y := (487267171714352336560 : Rat)/609623835676137297449 }
 
 
 
