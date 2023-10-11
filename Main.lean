@@ -3,7 +3,7 @@
 import Algol.Adic.Series
 import Algol.Diophantus.Quadratic.PellEquation
 import Algol.Diophantus.Cubic.Homogeneous
-
+import Algol.Curve.EllipticCurve
 
 -- import Algol.Adic.Series
 
@@ -38,6 +38,22 @@ def the8P := Plane.doublePoint the4P
 
 
 
+-- import Algol.Curve.EllipticCurve
+
+def curve := EllipticCurve.WeierstrassForm.mk (-7) 10
+def P : EllipticCurve.ECQPoint := QPoint.mk 1 2 
+def Q : EllipticCurve.ECQPoint := QPoint.mk 3 4
+
+#eval curve -- y² = x³ - 7x + 10
+#eval curve.doublePoint P -- { x := -1, y := -4 }
+#eval curve.doublePoint Q -- { x := (1 : Rat)/4, y := (23 : Rat)/8 }
+#eval EllipticCurve.additionFormula P Q -- { x := -3, y := 2 }
+#eval P + Q -- { x := -3, y := 2 }
+#eval let P2 := curve.doublePoint P
+      P + P2 + Q -- { x := 13, y := 46 }
+#eval (- curve.doublePoint (P + Q)) -- { x := 31, y := 172 }
+#eval let largeIntegerP := QPoint.mk 31 172
+      curve.doublePoint largeIntegerP -- { x := (58409 : Rat)/7396, y := (13451741 : Rat)/636056 }
 
 def main : IO Unit :=
   IO.println s!"Hello, Algol!"

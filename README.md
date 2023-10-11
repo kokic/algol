@@ -3,6 +3,8 @@
 (computer) algebraic algorithm in lean4
 
 
+## Numerical
+
 ### Adic.Series
 
 - $998244353 = 3 + 4\cdot5^2 + 4\cdot5^3 + 3\cdot5^5 + 2\cdot5^6 + 2\cdot5^7 + 1\cdot5^9 + 2\cdot5^{10} + 4\cdot5^{12} \in \mathbf{Z}_5$
@@ -26,7 +28,7 @@
 
 ### Diophantus.Quadratic.PellEquation
 
-- $(x,y)\in\mathbf{Z}_{\ge1}$ s.t. $x^2-7y^2=1$
+- $(x,y)\in\mathbf{Z}_{\ge1}\times\mathbf{Z}_{\ge1}$ and $x^2-7y^2=1$
 
   ```lean
   import Algol.Diophantus.Quadratic.PellEquation
@@ -57,4 +59,36 @@
   #eval the8P -- { x := (1243617733990094836481 : Rat)/609623835676137297449, y := (487267171714352336560 : Rat)/609623835676137297449 }
   ```
 
+### Algol.Curve.EllipticCurve
+
+- rational points $P=(1,2)$, $Q=(3, 4)$ in $C: y^2=x^3 - 7x + 10$
+  - $2P=(-1,-4)$
+  - $2Q=(\frac{1}{4}, \frac{23}{8})$
+  - $P+Q=(-3,2)$
+  - $3P+Q=(13,46)$
+  - $-2(P+Q)=(31,172)$
+  - $-4(P+Q)=(\frac{58409}{7396}, \frac{13451741}{636056})$
+
+  ```lean
+  import Algol.Curve.EllipticCurve
+
+  def curve := EllipticCurve.WeierstrassForm.mk (-7) 10
+  def P := QPoint.mk 1 2 
+  def Q := QPoint.mk 3 4
+
+  #eval curve -- y² = x³ - 7x + 10
+  #eval curve.doublePoint P -- { x := -1, y := -4 }
+  #eval curve.doublePoint Q -- { x := (1 : Rat)/4, y := (23 : Rat)/8 }
+  #eval EllipticCurve.additionFormula P Q -- { x := -3, y := 2 }
+  #eval P + Q -- { x := -3, y := 2 }
+  #eval let P2 := curve.doublePoint P
+        P + P2 + Q -- { x := 13, y := 46 }
+  #eval (- curve.doublePoint (P + Q)) -- { x := 31, y := 172 }
+  #eval let largeIntegerP := QPoint.mk 31 172
+        curve.doublePoint largeIntegerP -- { x := (58409 : Rat)/7396, y := (13451741 : Rat)/636056 }
+  ```
+
+
+
+## Algebraic
 
