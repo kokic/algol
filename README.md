@@ -28,7 +28,7 @@
 
 ### Diophantus.Quadratic.PellEquation
 
-- $(x,y)\in\mathbf{Z}_{\ge1}\times\mathbf{Z}_{\ge1}$ and $x^2-7y^2=1$
+- $(x,y)\in\mathbf{Z}_ {\ge1}\times\mathbf{Z}_ {\ge1}$ and $x^2-7y^2=1$
 
   ```lean
   import Algol.Diophantus.Quadratic.PellEquation
