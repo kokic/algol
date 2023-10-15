@@ -12,32 +12,32 @@ syntax "[" term " | " compClause,* "]" : term
 def List.map' (xs : List α) (f : α → β) : List β := List.map f xs
 
 
-def List.range_from_nn (m : Nat) (n : Nat) :=
+def List.rangeFromNNeg (m : Nat) (n : Nat) :=
   if m ≤ n then List.range (n - m + 1) |>.map (m + ·)
   else List.range (m - n + 1) |>.map (n + ·) |>.reverse
 
-def nats_to_ints (xs : List Nat) := xs.map (Int.ofNat ·)
+def castNatsToInts (xs : List Nat) := xs.map (Int.ofNat ·)
 
 -- we assume m < 0 and n < 0 but not bounded
-def List.range_from_neg (m : Int) (n : Int) :=
-  if m ≤ n then List.range_from_nn (-n).toNat (-m).toNat 
-    |> nats_to_ints |>.map (-·) |>.reverse
-  else List.range_from_nn m.natAbs n.natAbs 
-    |> nats_to_ints |> .map (-·)
--- #eval List.range_from_neg (-1) (-3)
--- #eval List.range_from_neg (-3) (-1)
+def List.rangeFromNeg (m : Int) (n : Int) :=
+  if m ≤ n then List.rangeFromNNeg (-n).toNat (-m).toNat 
+    |> castNatsToInts |>.map (-·) |>.reverse
+  else List.rangeFromNNeg m.natAbs n.natAbs 
+    |> castNatsToInts |> .map (-·)
+-- #eval List.rangeFromNeg (-1) (-3)
+-- #eval List.rangeFromNeg (-3) (-1)
 
 
-def List.range_from : Int -> Int -> List Int  
-  | Int.ofNat m, Int.ofNat n => range_from_nn m n |> nats_to_ints
-  | m, Int.ofNat n => range_from_neg m (-1) ++ (range (n + 1) |> nats_to_ints)
-  | Int.ofNat m, n => (range_from_nn m 0 |> nats_to_ints) ++ range_from_neg (-1) n
-  | m, n => range_from_neg m n
+def List.rangeFrom : Int -> Int -> List Int  
+  | Int.ofNat m, Int.ofNat n => rangeFromNNeg m n |> castNatsToInts
+  | m, Int.ofNat n => rangeFromNeg m (-1) ++ (range (n + 1) |> castNatsToInts)
+  | Int.ofNat m, n => (rangeFromNNeg m 0 |> castNatsToInts) ++ rangeFromNeg (-1) n
+  | m, n => rangeFromNeg m n
 
 
-def arithmetic_progression (s : Int) (t : Int) (u : Int) :=
-  List.range_from_nn 0 ((u - s) / d).toNat 
-    |> nats_to_ints |>.map (s + · * d)
+def arithmeticProgression (s : Int) (t : Int) (u : Int) :=
+  List.rangeFromNNeg 0 ((u - s) / d).toNat 
+    |> castNatsToInts |>.map (s + · * d)
   where d := (t - s)
 
 macro_rules
@@ -49,8 +49,8 @@ macro_rules
   
   | `([$t:term | if $x]) => `(if $x then [$t] else [])
   | `([$t:term | $c, $cs,*]) => `(List.join [[$t | $cs,*] | $c])
-  | `([$t:term .. $u:term]) => `(List.range_from $t $u)
-  | `([$t:term, $u:term .. $v:term]) => `(arithmetic_progression $t $u $v)
+  | `([$t:term .. $u:term]) => `(List.rangeFrom $t $u)
+  | `([$t:term, $u:term .. $v:term]) => `(arithmeticProgression $t $u $v)
 
 
 
