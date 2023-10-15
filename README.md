@@ -2,6 +2,14 @@
 # Algol
 (computer) algebraic algorithm in lean4
 
+- $(\tfrac43)^3 = (\tfrac67)^3 + (\tfrac{19}{21})^3$
+
+- $(\tfrac89)^3 + (\tfrac{10}9)^3 + (\tfrac{24}{73})^3 = (\tfrac{30}{91})^3 + (\tfrac{487}{657})^3 + (\tfrac{971}{819})^3$
+
+
+
+
+# Example
 
 ## Numerical
 
@@ -39,7 +47,7 @@
   #eval PellSolution.seven 3 -- { p := 32257, q := 12192 }
   ```
 
-### Diophantus.Cubic.Homogeneous
+### Diophantus.Homogeneous
 
 - a rational point $P=(1,2)$ in $C:x^3+y^3=9$
   - $2P=(\frac{-17}{7}, \frac{20}{7})$
@@ -47,7 +55,7 @@
   - $8P=(\frac{1243617733990094836481}{609623835676137297449}, \frac{487267171714352336560}{609623835676137297449})$
 
   ```lean
-  import Algol.Diophantus.Cubic.Homogeneous
+  import Algol.Diophantus.Homogeneous
   
   def theP := QPoint.mk 1 2
   def the2P := Plane.doublePoint theP

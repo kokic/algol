@@ -2,7 +2,7 @@
 
 import Algol.Adic.Series
 import Algol.Diophantus.Quadratic.PellEquation
-import Algol.Diophantus.Cubic.Homogeneous
+import Algol.Diophantus.Homogeneous
 import Algol.Curve.EllipticCurve
 
 -- import Algol.Adic.Series
@@ -25,7 +25,7 @@ import Algol.Curve.EllipticCurve
 
 
 
--- import Algol.Diophantus.Cubic.Homogeneous
+-- import Algol.Diophantus.Homogeneous
 
 def theP := QPoint.mk 1 2
 def the2P := Plane.doublePoint theP
