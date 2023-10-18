@@ -6,16 +6,12 @@ open Lean
 namespace EllipticCurve
 
 
-structure ECQPoint := point : QPoint 
+structure ECQPoint extends QPoint
 
 instance : Repr ECQPoint where
-  reprPrec x n := reprPrec x.point n
+  reprPrec p n := reprPrec p.x n
 
-instance : Coe QPoint ECQPoint := ⟨.mk⟩
-instance : Coe ECQPoint QPoint := ⟨ECQPoint.point⟩
-
-def ECQPoint.toTeX : ECQPoint → String := (·.point.toTeX)
-
+def ECQPoint.toTeX : ECQPoint → String := (·.toQPoint.toTeX)
 
 structure WeierstrassForm :=
   A : Int
@@ -48,11 +44,11 @@ def doublePointXUnderly (A B : Int) (x : Rat) :=
   (4 * (x ^ 3 + A * x + B))
 
 def doublePointUnderly (A : Int) (P : ECQPoint) : ECQPoint :=
-  let (x, y) := (P.point.x, P.point.y)
+  let (x, y) := (P.x, P.y)
   let k := (3 * x ^ 2 + A) / (2 * y)
   let x' := k ^ 2 - 2 * x
   let y' := - (k * (x' - x) + y)
-  QPoint.mk x' y'
+  ⟨x', y'⟩
 
 def doublePoint (form : WeierstrassForm) (P : ECQPoint) :=
   doublePointUnderly form.A P
@@ -64,18 +60,15 @@ end WeierstrassForm
 
 
 
-def inverse (P : ECQPoint) : ECQPoint := 
-  let P : QPoint := P
-  QPoint.mk P.x (-P.y)
+def inverse (P : ECQPoint) : ECQPoint := ⟨P.x, -P.y⟩
 
 -- assume P ≠ Q
 def additionFormula (P Q : ECQPoint) : ECQPoint :=
-  let (P, Q) : QPoint × QPoint := (P, Q)
   let (x₁, y₁, x₂, y₂) := (P.x, P.y, Q.x, Q.y)
   let k := (y₁ - y₂) / (x₁ - x₂)
   let x' := k ^ 2 - x₁ - x₂
   let y' := - (k * (x' - x₁) + y₁)
-  QPoint.mk x' y'
+  ⟨x', y'⟩
 
 
 instance : Add ECQPoint := ⟨additionFormula⟩
