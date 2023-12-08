@@ -1,0 +1,5 @@
+
+namespace HasseMinkowski
+
+
+end HasseMinkowski

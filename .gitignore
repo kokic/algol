@@ -1,4 +1,4 @@
-/build
-/lake-packages/*
+/.Notes
 
-/standalone
+/.lake
+/lake-packages/*

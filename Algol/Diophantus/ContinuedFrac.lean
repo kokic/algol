@@ -1,13 +1,11 @@
 
 
 structure Mat2x2 (α : Type u) :=
-  a₁₁ : α 
-  a₁₂ : α 
-  a₂₁ : α 
-  a₂₂ : α 
-deriving Repr 
-
-
+  a₁₁ : α
+  a₁₂ : α
+  a₂₁ : α
+  a₂₂ : α
+deriving Repr
 
 -- class ConcreteMat.Mul (Mat : Type) where
   -- mul : Mat → Mat → Mat
@@ -21,9 +19,9 @@ class AddMul (α : Type u) where
 instance : AddMul Nat := ⟨.add, .mul⟩
 instance : AddMul Int := ⟨.add, .mul⟩
 
-def Mat2x2.mul [AddMul α] : Mat2x2 α → Mat2x2 α → Mat2x2 α := 
+def Mat2x2.mul [AddMul α] : Mat2x2 α → Mat2x2 α → Mat2x2 α :=
   let (add, mul) := (AddMul.add, AddMul.mul)
-  λ A B => Mat2x2.mk 
+  λ A B => Mat2x2.mk
     (add (mul A.a₁₁ B.a₁₁) (mul A.a₁₂ B.a₂₁))
     (add (mul A.a₁₁ B.a₁₂) (mul A.a₁₂ B.a₂₂))
     (add (mul A.a₂₁ B.a₁₁) (mul A.a₂₂ B.a₂₁))
@@ -32,7 +30,7 @@ def Mat2x2.mul [AddMul α] : Mat2x2 α → Mat2x2 α → Mat2x2 α :=
 
 instance [AddMul α] : Mul (Mat2x2 α) := ⟨.mul⟩
 
-
+-- zero and one of type α
 def Mat2x2.power [AddMul α] : Mat2x2 α → α → α → Nat → Mat2x2 α
   | _, zero, one, 0 => Mat2x2.mk one zero zero one
   | A, _, _, 1 => A
@@ -43,8 +41,10 @@ def Mat2x2.power [AddMul α] : Mat2x2 α → α → α → Nat → Mat2x2 α
 def Mat2x2.powerNat : Mat2x2 Nat → Nat → Mat2x2 Nat
   | A, n => power A 0 1 n
 
+def Mat2x2.idNat := Mat2x2.mk 1 0 0 1
 
--- def ConcreteMat.mul (A B : Mat2x2 α) := 
+
+-- def ConcreteMat.mul (A B : Mat2x2 α) :=
 
 
 
@@ -56,6 +56,8 @@ def Mat2x2.powerNat : Mat2x2 Nat → Nat → Mat2x2 Nat
 
 -- def A := Mat2x2.mk 1 2 3 4
 -- #eval A.mul A
+
+
 
 
 def fracMat (p q : Nat) := Mat2x2.mk 0 1 p q
@@ -77,11 +79,11 @@ partial def coeffByEuclidAux (p q : Nat) (xs : List Nat) :=
     | r => let a := (p - r) / q
            coeffByEuclidAux q r (xs ++ [a])
 
-def coeffByEuclid (numerator denominator : Nat) := 
+def coeffByEuclid (numerator denominator : Nat) :=
   coeffByEuclidAux numerator denominator []
 
-  
-def coeffByEuclidFinite (numerator denominator n : Nat) 
+
+def coeffByEuclidFinite (numerator denominator n : Nat)
     := Id.run do
   let mut xs : List Nat := []
   let mut (p, q) := (numerator, denominator)
@@ -129,4 +131,3 @@ open ContinuedFrac
 -- #check (Mat2x2 Nat).mul⟩
 
 -- def regularContinuedFrac
-
