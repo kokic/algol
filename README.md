@@ -2,7 +2,7 @@
 # Algol
 (computer) algebraic algorithm in lean4
 
-- $(\tfrac43)^3 = (\tfrac67)^3 + (\tfrac{19}{21})^3$
+- $(\tfrac43)^3 = 1 + (\tfrac67)^3 + (\tfrac{19}{21})^3$
 
 - $(\tfrac89)^3 + (\tfrac{10}9)^3 + (\tfrac{24}{73})^3 = (\tfrac{30}{91})^3 + (\tfrac{487}{657})^3 + (\tfrac{971}{819})^3$
 
