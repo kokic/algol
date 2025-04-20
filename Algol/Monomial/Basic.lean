@@ -7,8 +7,6 @@ import Algol.Pretty.Basic
 
 open Std
 
--- structure Term (e : Type u) where
-  -- exponent: e
 abbrev Exponent (e : Type u) := e
 
 abbrev Exponents e := HashMap String (Exponent e)
@@ -38,7 +36,7 @@ where
       fun x => displayTerm x.display m.terms
     arr.foldl (init := "") fun s t => s ++ t
 
-def expEq [Repr e] [Repr c]
+def expLitEq [Repr e] [Repr c]
     (a b : Monomial e c) :=
   toString.exponentTerm a == toString.exponentTerm b
 
@@ -51,6 +49,15 @@ def exp? (m : Monomial e c)
   m.terms.get? var.display
 
 end Monomial
+
+def var_exp_eq [BEq e]
+    (a b : Monomial e c)
+    (x y : Variable)
+    (h : x.display ∈ a.terms ∧
+         y.display ∈ b.terms) :=
+  let aExp := a.exp x h.left
+  let bExp := b.exp y h.right
+  x == y && aExp == bExp
 
 instance [Repr e] [Repr c]
     : ToString (Monomial e c) :=
@@ -113,12 +120,12 @@ def monomial_mul [Add e] [Mul c]
   .mk (a.vars.insertMany b.vars) terms
       (a.coefficient * b.coefficient)
 
-instance [HMul e Nat e] [HPow c Nat c] :
-    HPow (Monomial e c) Nat (Monomial e c) :=
+instance [HMul e Nat e] [HPow c Nat c]
+    : HPow (Monomial e c) Nat (Monomial e c) :=
   ⟨monomial_pow⟩
 
-instance [Add e] [Mul c] : Mul (Monomial e c) :=
-  ⟨monomial_mul⟩
+instance [Add e] [Mul c]
+    : Mul (Monomial e c) := ⟨monomial_mul⟩
 
 instance : HasZero Nat := ⟨0⟩
 instance : HasOne Nat := ⟨1⟩
