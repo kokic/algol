@@ -7,56 +7,78 @@ import Algol.Pretty.Basic
 
 open Std
 
-structure Term (e : Type u) where
-  exponent: e
+-- structure Term (e : Type u) where
+  -- exponent: e
+abbrev Exponent (e : Type u) := e
 
-abbrev Terms e := HashMap String (Term e)
+abbrev Exponents e := HashMap String (Exponent e)
+
+def displayTerm [Repr e]
+    (key : String) (terms : Exponents e) :=
+  match terms.get? key with
+    | some term => prettyExp key (reprStr term)
+    | none => ""
 
 structure Monomial (e c :  Type u) where
   vars : HashSet Variable
-  terms : Terms e
-  coefficient: c
-
-def displayTerm [Repr e]
-    (key : String) (terms : HashMap String (Term e)) :=
-  match terms.get? key with
-    | some term => prettyExp key (reprStr term.exponent)
-    | none => ""
+  terms : Exponents e
+  coefficient : c
 
 namespace Monomial
 
+def sortedVars (m : Monomial e c) :=
+  m.vars.toArray.qsort Variable.lt
+
 def toString [Repr e] [Repr c]
     (m : Monomial e c) : String :=
-  let term := m.vars.toList
-    |>.map (fun x => displayTerm x.display m.terms)
-    |>.foldl (init := "") fun s t => s ++ t
-  prettyCoeff term (reprStr m.coefficient)
+  prettyCoeff exponentTerm (reprStr m.coefficient)
+where
+  exponentTerm :=
+    let arr := m.sortedVars.map
+      fun x => displayTerm x.display m.terms
+    arr.foldl (init := "") fun s t => s ++ t
+
+def expEq [Repr e] [Repr c]
+    (a b : Monomial e c) :=
+  toString.exponentTerm a == toString.exponentTerm b
+
+def exp (m : Monomial e c)
+              (var : Variable) :=
+  m.terms.get var.display
+
+def exp? (m : Monomial e c)
+              (var : Variable) :=
+  m.terms.get? var.display
 
 end Monomial
 
-instance [Repr e] [Repr c] : ToString (Monomial e c) :=
+instance [Repr e] [Repr c]
+    : ToString (Monomial e c) :=
   ⟨fun m => m.toString⟩
 
-instance [Repr e] [Repr c] : Repr (Monomial e c) :=
+instance [Repr e] [Repr c]
+    : Repr (Monomial e c) :=
   ⟨fun m _ => ToString.toString m⟩
 
-instance [HasOne e] [HasOne c] : Coe Variable (Monomial e c) :=
+instance [HasOne e] [HasOne c]
+    : Coe Variable (Monomial e c) :=
   ⟨fun v => .mk
     (.ofList [v])
-      (.insert (.emptyWithCapacity 4) v.display
-        (.mk HasOne.one))
+      (.insert (.emptyWithCapacity 4)
+        v.display HasOne.one)
     HasOne.one⟩
 
 def monomial [HasZero e] [BEq e]
     (data : c × List (Variable × e)) : Monomial e c := Id.run do
   let (coeff, terms) := data
-  let terms := terms.filter (·.snd == HasZero.zero)
+  let terms := terms.filter (·.snd != HasZero.zero)
   let capacity := terms.length
-  let α := HashSet Variable × HashMap String (Term e)
+  let α := HashSet Variable × HashMap String (Exponent e)
   let init : α := (.emptyWithCapacity capacity, .emptyWithCapacity capacity)
   let data := terms.foldl (init := init)
     fun (vars, map) (var, exp) =>
-      (vars.insert var, map.insert var.display (.mk exp))
+      (vars.insert var, map.insert
+        var.display exp)
   .mk data.fst data.snd coeff
 
 -- (axᵐ)ⁿ → aⁿxᵐⁿ
@@ -68,8 +90,8 @@ def monomial_pow [HMul e Nat e] [HPow c Nat c]
   for v in vars do
     let key := v.display
     if h : key ∈ m.terms then
-      let term := m.terms.get v.display h
-      let term := Term.mk (term.exponent * n)
+      let term := m.exp v h
+      let term := term * n
       terms := terms.insert key term
   .mk vars terms (m.coefficient ^ n)
 
@@ -84,8 +106,7 @@ def monomial_mul [Add e] [Mul c]
       let bTerm := b.terms.get key hb
       if ha : key ∈ a.terms then
         let aTerm := a.terms.get key ha
-        let term := Term.mk
-          (aTerm.exponent + bTerm.exponent)
+        let term := aTerm + bTerm
         terms := terms.insert key term
       else
         terms := terms.insert key bTerm
@@ -111,8 +132,8 @@ def _3x₂ := monomial (3, [(var "x", 2)])
 def y : Monomial Nat Nat := var "y"
 
 #eval y * monomial (3, [])
-#eval _3x₂^0
-#eval x^3 * y^2
+#eval (_3x₂, _3x₂^0)
+#eval (x^3 * y^2, y^2 * x)
 #eval x * x^2 * _3x₂
 
 end Example
