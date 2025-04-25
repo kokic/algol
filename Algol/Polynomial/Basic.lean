@@ -3,6 +3,7 @@ import Std.Data.HashSet
 import Algol.Variable.Basic
 import Algol.Monomial.Basic
 import Algol.Abbrev
+import Algol.Generic.Power
 
 open Std
 
@@ -50,22 +51,19 @@ structure Polynomial (e c : Type u) where
   vars : HashSet Variable
   terms : List (Monomial e c)
 
-instance [Repr e] [Repr c]
-    : ToString (Polynomial e c) :=
-  ⟨fun p => match p.terms with
-    | [] => ""
-    | [m] => m.toString
-    | m :: ms => ms.foldl (init := m.toString)
-      fun s t => s!"{s} + {t.toString}"⟩
-
 def poly (data : List (Monomial e c))
     : Polynomial e c :=
   let allVars := vars data
   .mk allVars data
 
+def Polynomial.mul_id
+    [BEq e] [HasNil e] [HasOne c]
+    : Polynomial e c :=
+  poly [.mul_id]
+
 def polynomial_add
     [Repr e] [BEq e] [LT e] [DecidableLT e]
-    [Repr c] [HasZero c] [BEq c] [Add c]
+    [Repr c] [HasNil c] [BEq c] [Add c]
     (a b : Polynomial e c) : Polynomial e c :=
   let allVars := a.vars.insertMany b.vars
   .mk allVars (add_impl a.terms b.terms)
@@ -79,18 +77,18 @@ where
       if monomial_lt x y then
         y :: add_impl (x :: xs) ys else
       let coeff_sum := x.coefficient + y.coefficient
-      ite (coeff_sum == HasZero.zero)
+      ite (coeff_sum == HasNil.nil)
           (add_impl xs ys)
           ((.mk x.vars x.terms coeff_sum) :: add_impl xs ys)
 
 instance
     [Repr e] [BEq e] [LT e] [DecidableLT e]
-    [Repr c] [HasZero c] [BEq c] [Add c] [Mul c]
+    [Repr c] [HasNil c] [BEq c] [Add c] [Mul c]
   : Add (Polynomial e c) := ⟨polynomial_add⟩
 
 def polynoimal_mul
     [Repr e] [BEq e] [LT e] [DecidableLT e] [Add e]
-    [Repr c] [HasZero c] [BEq c] [Add c] [Mul c]
+    [Repr c] [HasNil c] [BEq c] [Add c] [Mul c]
     (a b : Polynomial e c) : Polynomial e c :=
   let allVars := a.vars.insertMany b.vars
   .mk allVars (mul_impl a.terms b.terms)
@@ -107,12 +105,30 @@ where
 
 instance
     [Repr e] [BEq e] [LT e] [DecidableLT e] [Add e]
-    [Repr c] [HasZero c] [BEq c] [Add c] [Mul c]
+    [Repr c] [HasNil c] [BEq c] [Add c] [Mul c]
   : Mul (Polynomial e c) := ⟨polynoimal_mul⟩
+
+instance
+    [Repr e] [HasNil e] [BEq e] [LT e] [DecidableLT e] [Add e]
+    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c]
+    : HPow (Polynomial e c) Nat (Polynomial e c) :=
+  ⟨exponentBySquaring polynoimal_mul .mul_id⟩
 
 namespace Polynomial
 
+def toString [Repr e] [Repr c]
+    (p : Polynomial e c) :=
+  match p.terms with
+    | [] => ""
+    | [m] => m.toString
+    | m :: ms => ms.foldl (init := m.toString)
+      fun s t => s ++ " + " ++ Monomial.toString t
+
 end Polynomial
+
+instance [Repr e] [Repr c]
+    : ToString (Polynomial e c) :=
+  ⟨Polynomial.toString⟩
 
 namespace Example
 

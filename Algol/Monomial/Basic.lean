@@ -40,13 +40,16 @@ def expLitEq [Repr e] [Repr c]
     (a b : Monomial e c) :=
   toString.exponentTerm a == toString.exponentTerm b
 
-def exp (m : Monomial e c)
-              (var : Variable) :=
+def exp (m : Monomial e c) (var : Variable) :=
   m.terms.get var.display
 
-def exp? (m : Monomial e c)
-              (var : Variable) :=
+def exp? (m : Monomial e c) (var : Variable)
+    : Option e :=
   m.terms.get? var.display
+
+def exp_or_nil [HasNil e]
+    (m : Monomial e c) (var : Variable) : e :=
+  (m.exp? var).getD HasNil.nil
 
 end Monomial
 
@@ -75,10 +78,10 @@ instance [HasOne e] [HasOne c]
         v.display HasOne.one)
     HasOne.one⟩
 
-def monomial [HasZero e] [BEq e]
+def monomial [HasNil e] [BEq e]
     (data : c × List (Variable × e)) : Monomial e c := Id.run do
   let (coeff, terms) := data
-  let terms := terms.filter (·.snd != HasZero.zero)
+  let terms := terms.filter (·.snd != HasNil.nil)
   let capacity := terms.length
   let α := HashSet Variable × HashMap String (Exponent e)
   let init : α := (.emptyWithCapacity capacity, .emptyWithCapacity capacity)
@@ -87,6 +90,11 @@ def monomial [HasZero e] [BEq e]
       (vars.insert var, map.insert
         var.display exp)
   .mk data.fst data.snd coeff
+
+def Monomial.mul_id
+    [BEq e] [HasNil e] [HasOne c]
+    : Monomial e c :=
+  monomial (HasOne.one, [(var "", HasNil.nil)])
 
 -- (axᵐ)ⁿ → aⁿxᵐⁿ
 def monomial_pow [HMul e Nat e] [HPow c Nat c]
@@ -126,9 +134,6 @@ instance [HMul e Nat e] [HPow c Nat c]
 
 instance [Add e] [Mul c]
     : Mul (Monomial e c) := ⟨monomial_mul⟩
-
-instance : HasZero Nat := ⟨0⟩
-instance : HasOne Nat := ⟨1⟩
 
 namespace Example
 
