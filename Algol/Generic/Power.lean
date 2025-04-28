@@ -1,7 +1,11 @@
-
+/-
+Copyright (c) 2025 Algol Project. All rights reserved.
+Released under MIT license as described in the file LICENSE.
+Authors: kokic
+-/
 import Algol.Abbrev
 
-def exponentBySquaring
+def exponentBySquaring {α : Type u}
     (op : Bi α) (id : α) : α → Nat → α :=
 fun
   | _, 0 => id

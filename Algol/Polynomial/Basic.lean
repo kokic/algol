@@ -1,9 +1,19 @@
-
+/-
+Copyright (c) 2025 Algol Project. All rights reserved.
+Released under MIT license as described in the file LICENSE.
+Authors: kokic
+-/
 import Std.Data.HashSet
 import Algol.Variable.Basic
 import Algol.Monomial.Basic
 import Algol.Abbrev
 import Algol.Generic.Power
+
+/-!
+## Reference
+
+- Zippel, Richard. Effective polynomial computation. Vol. 241. Springer Science & Business Media, 2012.
+-/
 
 open Std
 

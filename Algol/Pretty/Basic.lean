@@ -1,4 +1,8 @@
-
+/-
+Copyright (c) 2025 Algol Project. All rights reserved.
+Released under MIT license as described in the file LICENSE.
+Authors: kokic
+-/
 def toSuperscript (s : String) : Option String :=
   s.toInt?.map case_int
 where
