@@ -1,24 +1,13 @@
 /-
 Copyright (c) 2025 Algol Project. All rights reserved.
 Released under MIT license as described in the file LICENSE.
-Authors: kokic
+Authors: kokic (@kokic)
 -/
 import Algol.Polynomial.Basic
+import Algol.Polynomial.Nat
 import Algol.Derivative.DualNumber
 import Algol.Adic.Binary
 import Algol.Data.BinaryTreeCode
-
-def var_q := var "q"
-def q := poly [monomial (1, [(var_q, 1)])]
-
-instance : OfNat (Polynomial Nat Nat) n :=
-  ⟨poly [monomial (n, [(var_q, 0)])]⟩
-
-instance : BEq (Polynomial Nat Nat) :=
-  ⟨fun a b => a.toString == b.toString⟩
-
-instance : HasNil (Polynomial Nat Nat) := ⟨0⟩
-instance : HasOne (Polynomial Nat Nat) := ⟨1⟩
 
 instance
     [OfNat R n] [HasNil R]

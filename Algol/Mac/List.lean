@@ -1,6 +1,6 @@
 
 declare_syntax_cat compClause
-syntax "for " term " in " term : compClause
+syntax "for" term " in " term : compClause
 syntax "for" term "<-" term : compClause
 syntax "for" term "←" term : compClause
 syntax "if " term : compClause
@@ -37,9 +37,9 @@ where d := t - s
 macro_rules
   | `([$t:term |]) => `([$t])
 
-  | `([$t:term | for $x in $xs]) => `(List.map $xs (f := λ $x => $t))
-  | `([$t:term | for $x <- $xs]) => `(List.map $xs (f := λ $x => $t))
-  | `([$t:term | for $x ← $xs]) => `(List.map $xs (f := λ $x => $t))
+  | `([$t:term | for $x in $xs]) => `(List.map $xs (f := fun $x => $t))
+  | `([$t:term | for $x <- $xs]) => `(List.map $xs (f := fun $x => $t))
+  | `([$t:term | for $x ← $xs]) => `(List.map $xs (f := fun $x => $t))
 
   | `([$t:term | if $x]) => `(if $x then [$t] else [])
   | `([$t:term | $c, $cs,*]) => `(List.flatten [[$t | $cs,*] | $c])

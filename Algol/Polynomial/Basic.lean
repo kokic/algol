@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Algol Project. All rights reserved.
 Released under MIT license as described in the file LICENSE.
-Authors: kokic
+Authors: kokic (@kokic)
 -/
 import Std.Data.HashSet
 import Algol.Variable.Basic
@@ -71,6 +71,10 @@ def Polynomial.mul_id
     : Polynomial e c :=
   poly [.mul_id]
 
+def Polynomial.zero : Polynomial e c := poly []
+
+instance : HasNil (Polynomial e c) := ⟨.zero⟩
+
 def polynomial_add
     [Repr e] [BEq e] [LT e] [DecidableLT e]
     [Repr c] [HasNil c] [BEq c] [Add c]
@@ -129,7 +133,7 @@ namespace Polynomial
 def toString [Repr e] [Repr c]
     (p : Polynomial e c) :=
   match p.terms with
-    | [] => ""
+    | [] => "0"
     | [m] => m.toString
     | m :: ms => ms.foldl (init := m.toString)
       fun s t => s ++ " + " ++ Monomial.toString t
@@ -139,6 +143,15 @@ end Polynomial
 instance [Repr e] [Repr c]
     : ToString (Polynomial e c) :=
   ⟨Polynomial.toString⟩
+
+instance [Repr e] [Repr c]
+    : Repr (Polynomial e c) :=
+  ⟨fun p _ => p.toString⟩
+
+instance
+    [Repr e] [Repr c]
+    : BEq (Polynomial e c) :=
+  ⟨fun a b => a.toString == b.toString⟩
 
 namespace Example
 

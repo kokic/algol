@@ -79,7 +79,8 @@ instance [HasOne e] [HasOne c]
     HasOne.one⟩
 
 def monomial [HasNil e] [BEq e]
-    (data : c × List (Variable × e)) : Monomial e c := Id.run do
+    (data : c × List (Variable × e))
+    : Monomial e c := Id.run do
   let (coeff, terms) := data
   let terms := terms.filter (·.snd != HasNil.nil)
   let capacity := terms.length

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Algol Project. All rights reserved.
+Released under MIT license as described in the file LICENSE.
+Authors: kokic (@kokic)
+-/
 import Algol.Data.Mat2x2
 
 namespace SL2

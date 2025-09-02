@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Algol Project. All rights reserved.
 Released under MIT license as described in the file LICENSE.
-Authors: kokic
+Authors: kokic (@kokic)
 -/
 partial def natToBinary (n : Nat) : String :=
   ite (n == 0) "0" (go n "")
