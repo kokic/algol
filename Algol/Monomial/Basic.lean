@@ -136,6 +136,40 @@ instance [HMul e Nat e] [HPow c Nat c]
 instance [Add e] [Mul c]
     : Mul (Monomial e c) := ⟨monomial_mul⟩
 
+def diff (a b : HashSet Variable) : HashSet Variable := a.filter fun x => x ∉ b
+
+def monomial_div
+    [DecidableEq e] [HasNil e] [Neg e] [Add e] [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e]
+    [HasOne c] [Div c]
+    (a b : Monomial e c) : Option (Monomial e c) := Id.run do
+  let mut terms := a.terms
+  for bv in b.vars do
+    let key := bv.display
+    if hb : key ∈ b.terms then
+      let bTerm := b.terms.get key hb
+      if ha : key ∈ a.terms then
+        let aTerm := a.terms.get key ha
+        if aTerm < bTerm then
+          return none
+        let term := aTerm - bTerm
+        terms := terms.insert key term
+      else
+        return none
+  some (.mk (diff a.vars b.vars) terms
+        (a.coefficient / b.coefficient))
+
+instance [BEq e] [HasNil e] [HasNil c] : Inhabited (Monomial e c) :=
+  ⟨monomial (HasNil.nil, [])⟩
+
+def monomial_div!
+    [BEq e] [HasNil e] [HasNil c]
+    [DecidableEq e] [HasNil e] [Neg e] [Add e] [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e]
+    [HasOne c] [Div c]
+    (a b : Monomial e c) : Monomial e c :=
+  match monomial_div a b with
+    | some m => m
+    | none => panic! "monomial_div!: division not possible"
+
 namespace Example
 
 def x : Monomial Nat Nat := var "x"

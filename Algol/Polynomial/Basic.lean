@@ -75,6 +75,8 @@ def Polynomial.zero : Polynomial e c := poly []
 
 instance : HasNil (Polynomial e c) := ⟨.zero⟩
 
+def Polynomial.isZero (p : Polynomial e c) : Bool := p.terms.isEmpty
+
 def polynomial_add
     [Repr e] [BEq e] [LT e] [DecidableLT e]
     [Repr c] [HasNil c] [BEq c] [Add c]
@@ -127,6 +129,56 @@ instance
     [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c]
     : HPow (Polynomial e c) Nat (Polynomial e c) :=
   ⟨exponentBySquaring polynoimal_mul .mul_id⟩
+
+
+instance [Neg c] : Neg (Monomial e c) := ⟨fun a => .mk a.vars a.terms (-a.coefficient)⟩
+
+instance [Neg c] : Neg (Polynomial e c) := ⟨fun a => poly (a.terms.map fun m => -m)⟩
+
+instance
+    [Repr e] [BEq e] [LT e] [DecidableLT e]
+    [Repr c] [HasNil c] [BEq c] [Add c] [Neg c]
+  : Sub (Polynomial e c) :=
+    ⟨fun a b => polynomial_add a (-b)⟩
+
+
+partial def polynomial_div
+    [DecidableEq e] [HasNil e] [Neg e] [Add e]
+    [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e] [Repr e]
+    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c] [Div c] [Neg c]
+    (a b : Polynomial e c)
+  : Option (Polynomial e c × Polynomial e c) :=
+    if b.isZero then none else
+      some (div_impl a b .zero)
+where
+  div_impl : Polynomial e c → Polynomial e c → Polynomial e c → (Polynomial e c × Polynomial e c)
+    | r, d, q =>
+      match r.terms with
+        | [] => (q, r)
+        | r₁ :: _ =>
+          match d.terms with
+            | [] => (q, r) -- unreachable
+            | d₁ :: _ =>
+              if monomial_lt r₁ d₁ then
+                (q, r)
+              else
+                let m := monomial_div! r₁ d₁
+                let q' := q + poly [m]
+                let r' := r - (poly [m] * d)
+                div_impl r' d q'
+
+def polynomial_div!
+    [DecidableEq e] [HasNil e] [Neg e] [Add e]
+    [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e] [Repr e]
+    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c] [Div c] [Neg c]
+    (a b : Polynomial e c) : (Polynomial e c × Polynomial e c) :=
+  (polynomial_div a b).getD (.zero, a)
+
+instance
+    [DecidableEq e] [HasNil e] [Neg e] [Add e]
+    [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e] [Repr e]
+    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c] [Div c] [Neg c]
+  : Div (Polynomial e c) := ⟨fun a b => (polynomial_div! a b).fst⟩
 
 namespace Polynomial
 

@@ -7,7 +7,6 @@ import Algol.Data.Mat2x2
 
 import Algol.Infoview.RemoteKaTeX
 import Algol.Polynomial.Basic
-import Algol.Polynomial.Nat
 
 import Algol.Mac.TeX
 
@@ -31,7 +30,7 @@ where
     | x :: xs => x ++ " + " ++ "cfrac".tex ["1", go xs]
     | _ => ""
 
-def eval_to
+def evalTo
     [HasNil α] [HasOne α] [Add α] [Mul α] [Repr α]
     (data : List α) : RenderWidgetProps :=
   let matrix := fold data
@@ -40,5 +39,13 @@ def eval_to
 
 end SimpleContinuedFraction
 
+def var_q := var "q"
+def q := poly [monomial (1, [(var_q, 1)])]
+
+instance : OfNat (Polynomial Nat Nat) n :=
+  ⟨ite (n == 0) .zero (poly [monomial (n, [(var_q, 0)])])⟩
+
+instance : HasOne (Polynomial Nat Nat) := ⟨1⟩
+
 open SimpleContinuedFraction in
-#show eval_to [q, 2*q^2, 3*q^3, 4*q^4]
+#show evalTo [q, 2*q^2, 3*q^3, 4*q^4]

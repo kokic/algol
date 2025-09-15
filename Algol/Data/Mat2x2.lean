@@ -13,6 +13,14 @@ structure Mat2x2 (α : Type u) where
   a₂₂ : α
 deriving Repr
 
+def Mat2x2.add [Add α] : Mat2x2 α → Mat2x2 α → Mat2x2 α
+  | A, B => Mat2x2.mk
+    (A.a₁₁ + B.a₁₁) (A.a₁₂ + B.a₁₂)
+    (A.a₂₁ + B.a₂₁) (A.a₂₂ + B.a₂₂)
+
+instance [Add α] : Add (Mat2x2 α) :=
+  ⟨Mat2x2.add⟩
+
 def Mat2x2.mul [Add α] [Mul α]
     : Mat2x2 α → Mat2x2 α → Mat2x2 α
   | A, B => Mat2x2.mk
@@ -32,3 +40,26 @@ def Mat2x2.id [HasNil α] [HasOne α]
 instance [HasNil α] [HasOne α] [Add α] [Mul α]
     : HPow (Mat2x2 α) Nat (Mat2x2 α) :=
   ⟨exponentBySquaring .mul .id⟩
+
+def Mat2x2.det [Add α] [Mul α] [Sub α] : Mat2x2 α → α
+  | A => (A.a₁₁ * A.a₂₂) - (A.a₁₂ * A.a₂₁)
+
+def Mat2x2.trace [Add α] : Mat2x2 α → α
+  | A => A.a₁₁ + A.a₂₂
+
+def Mat2x2.inv
+    [Add α] [Mul α] [Sub α] [Div α] [Neg α] : Mat2x2 α → Mat2x2 α
+  | A =>
+    let det := A.det
+    Mat2x2.mk
+      (A.a₂₂ / det) ((-A.a₁₂) / det)
+      ((-A.a₂₁) / det) (A.a₁₁ / det)
+
+def Mat2x2.transpose [Add α] [Mul α] : Mat2x2 α → Mat2x2 α
+  | A => Mat2x2.mk
+    A.a₁₁ A.a₂₁
+    A.a₁₂ A.a₂₂
+
+def Mat2x2.conjugate
+    [Add α] [Mul α] [Sub α] [Div α] [Neg α] : Mat2x2 α → Mat2x2 α
+  | A => (A.inv).transpose

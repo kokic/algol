@@ -7,17 +7,17 @@ import Algol.Data.Mat2x2
 
 namespace SL2
 
-/-- The translation matrix. -/
+/-- The translation matrix (1 1; 0 1). -/
 def T [HasNil α] [HasOne α] : Mat2x2 α :=
   Mat2x2.mk
     HasOne.one HasOne.one
     HasNil.nil HasOne.one
 
-/-- The inversion matrix -/
+/-- The inversion matrix (0 -1; 1 0). -/
 def S
     [HasNil α] [HasOne α] [Neg α] : Mat2x2 α :=
   Mat2x2.mk
-    HasOne.one (Neg.neg HasOne.one)
+    HasNil.nil (Neg.neg HasOne.one)
     HasOne.one HasNil.nil
 
 end SL2

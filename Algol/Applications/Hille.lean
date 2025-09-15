@@ -4,10 +4,21 @@ Released under MIT license as described in the file LICENSE.
 Authors: kokic (@kokic)
 -/
 import Algol.Polynomial.Basic
-import Algol.Polynomial.Nat
 import Algol.Derivative.DualNumber
 import Algol.Adic.Binary
 import Algol.Data.BinaryTreeCode
+
+-- beginning of polynomial ℕ[q]
+
+def var_q := var "q"
+def q := poly [monomial (1, [(var_q, 1)])]
+
+instance : OfNat (Polynomial Nat Nat) n :=
+  ⟨ite (n == 0) .zero (poly [monomial (n, [(var_q, 0)])])⟩
+
+instance : HasOne (Polynomial Nat Nat) := ⟨1⟩
+
+-- end of polynomial ℕ[q]
 
 instance
     [OfNat R n] [HasNil R]
