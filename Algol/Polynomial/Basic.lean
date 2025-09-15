@@ -25,16 +25,16 @@ def vars (xs : List (Monomial e c))
     fun s t => s.insertMany t.vars
 
 /-- comparing the lexicographic order (`y < x`) and exponentiation of variables. -/
-def monomial_lt
+def monomial_priority
     [Repr e] [Repr c] [BEq e] [LT e] [DecidableLT e]
     (a b : Monomial e c) : Bool :=
   ite (a.vars.size < b.vars.size) true
       (ite (a.vars.size > b.vars.size) false
-           (lt_impl
+           (priority_impl
              a.sortedVars.toList
              b.sortedVars.toList))
 where
-  lt_impl : List Variable → List Variable → Bool
+  priority_impl : List Variable → List Variable → Bool
     | _, [] => false
     | [], _ => true
     | x :: xs, y :: ys =>
@@ -42,7 +42,7 @@ where
             y.display ∈ b.terms)
         (fun h =>
           ite (var_exp_eq a b x y h)
-              (lt_impl xs ys)
+              (priority_impl xs ys)
               (var_exp_order
                 (x.gt y)
                 (a.exp x h.left < b.exp y h.right)))
@@ -50,12 +50,6 @@ where
   var_exp_order : Bool → Bool → Bool
     | false, false => false
     | _, _ => true
-
-/-- comparing the lexicographic order (`x > y`) and exponentiation of variables. -/
-def monomial_gt
-    [Repr e] [Repr c] [BEq e] [LT e] [DecidableLT e]
-    (a b : Monomial e c) : Bool :=
-  monomial_lt b a
 
 structure Polynomial (e c : Type u) where
   vars : HashSet Variable
@@ -88,9 +82,9 @@ where
     | xs, [] => xs
     | [], ys => ys
     | x :: xs, y :: ys =>
-      if monomial_gt x y then
+      if monomial_priority y x then
         x :: add_impl xs (y :: ys) else
-      if monomial_lt x y then
+      if monomial_priority x y then
         y :: add_impl (x :: xs) ys else
       let coeff_sum := x.coefficient + y.coefficient
       ite (coeff_sum == HasNil.nil)
@@ -140,45 +134,6 @@ instance
     [Repr c] [HasNil c] [BEq c] [Add c] [Neg c]
   : Sub (Polynomial e c) :=
     ⟨fun a b => polynomial_add a (-b)⟩
-
-
-partial def polynomial_div
-    [DecidableEq e] [HasNil e] [Neg e] [Add e]
-    [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e] [Repr e]
-    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c] [Div c] [Neg c]
-    (a b : Polynomial e c)
-  : Option (Polynomial e c × Polynomial e c) :=
-    if b.isZero then none else
-      some (div_impl a b .zero)
-where
-  div_impl : Polynomial e c → Polynomial e c → Polynomial e c → (Polynomial e c × Polynomial e c)
-    | r, d, q =>
-      match r.terms with
-        | [] => (q, r)
-        | r₁ :: _ =>
-          match d.terms with
-            | [] => (q, r) -- unreachable
-            | d₁ :: _ =>
-              if monomial_lt r₁ d₁ then
-                (q, r)
-              else
-                let m := monomial_div! r₁ d₁
-                let q' := q + poly [m]
-                let r' := r - (poly [m] * d)
-                div_impl r' d q'
-
-def polynomial_div!
-    [DecidableEq e] [HasNil e] [Neg e] [Add e]
-    [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e] [Repr e]
-    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c] [Div c] [Neg c]
-    (a b : Polynomial e c) : (Polynomial e c × Polynomial e c) :=
-  (polynomial_div a b).getD (.zero, a)
-
-instance
-    [DecidableEq e] [HasNil e] [Neg e] [Add e]
-    [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e] [Repr e]
-    [Repr c] [HasNil c] [HasOne c] [BEq c] [Add c] [Mul c] [Div c] [Neg c]
-  : Div (Polynomial e c) := ⟨fun a b => (polynomial_div! a b).fst⟩
 
 namespace Polynomial
 

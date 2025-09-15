@@ -24,6 +24,10 @@ structure Monomial (e c :  Type u) where
 
 namespace Monomial
 
+def isZero [BEq c] [HasNil c]
+    (m : Monomial e c) : Bool :=
+  m.coefficient == HasNil.nil
+
 def sortedVars (m : Monomial e c) :=
   m.vars.toArray.qsort Variable.lt
 
@@ -136,8 +140,6 @@ instance [HMul e Nat e] [HPow c Nat c]
 instance [Add e] [Mul c]
     : Mul (Monomial e c) := ⟨monomial_mul⟩
 
-def diff (a b : HashSet Variable) : HashSet Variable := a.filter fun x => x ∉ b
-
 def monomial_div
     [DecidableEq e] [HasNil e] [Neg e] [Add e] [Mul e] [Div e] [LT e] [DecidableLT e] [Sub e]
     [HasOne c] [Div c]
@@ -149,13 +151,11 @@ def monomial_div
       let bTerm := b.terms.get key hb
       if ha : key ∈ a.terms then
         let aTerm := a.terms.get key ha
-        if aTerm < bTerm then
-          return none
         let term := aTerm - bTerm
         terms := terms.insert key term
       else
         return none
-  some (.mk (diff a.vars b.vars) terms
+  some (.mk (a.vars.insertMany b.vars) terms
         (a.coefficient / b.coefficient))
 
 instance [BEq e] [HasNil e] [HasNil c] : Inhabited (Monomial e c) :=
