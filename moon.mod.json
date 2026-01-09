@@ -1,0 +1,15 @@
+{
+  "name": "kokic/algol",
+  "version": "0.1.0",
+  "deps": {
+    "kokic/prime": "0.1.3"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/kokic/algol",
+  "license": "Apache-2.0",
+  "keywords": [
+    "symbolic computation",
+    "experimental"
+  ],
+  "description": "Currently, Algol is a symbolic computation tool used for my personal use and experimental purposes, so it does not aim to cover the functionality of other existing Computer Algebra Systems. "
+}
