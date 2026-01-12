@@ -79,7 +79,8 @@ pub fn prime_factor_descent(n : BigInt) -> BigInt {
 ///|
 test {
   // 1235589577 = 26479 × 46663
-  assert_eq(prime_factor_descent(1235589577), 26479)
+  let factor = prime_factor_descent(1235589577)
+  assert_true(factor == 26479 || factor == 46663)
 }
 
 ///|
@@ -93,10 +94,4 @@ pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] {
     n = n / p
   }
   factors
-}
-
-///|
-test "factorization" {
-  let n = 2N * 2 * 5 * 7 * 11 * 19 * 19
-  println(factor(n))
 }

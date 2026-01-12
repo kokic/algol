@@ -2,7 +2,8 @@
   "name": "kokic/algol",
   "version": "0.1.0",
   "deps": {
-    "kokic/prime": "0.1.3"
+    "kokic/prime": "0.1.3",
+    "moonbitlang/x": "0.4.38"
   },
   "readme": "README.md",
   "repository": "https://github.com/kokic/algol",
