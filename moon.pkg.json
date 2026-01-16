@@ -1,7 +1,8 @@
 {
   "import": [
-    "moonbitlang/core/bigint", 
-    "moonbitlang/x/rational", 
-    "kokic/prime"
+    "moonbitlang/core/bigint",
+    "moonbitlang/x/rational",
+    "kokic/prime",
+    "kokic/algol/tracing"
   ]
 }
