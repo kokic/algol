@@ -1,7 +1,7 @@
 ///|
 pub fn generate_time_based_seed() -> Bytes {
   let timestamp = @env.now()
-  let splitmix_rng = @quickcheck/splitmix.new(seed=timestamp)
+  let splitmix_rng = @splitmix.new(seed=timestamp)
   let part1 = splitmix_rng.next_uint64()
   let part2 = splitmix_rng.next_uint64()
   let part3 = splitmix_rng.next_uint64()

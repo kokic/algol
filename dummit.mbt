@@ -16,7 +16,7 @@ pub fn is_quintic_ab_solvable(a : BigInt, b : BigInt) -> Bool {
   let mut msg : Message = Empty
   let coeffs = quintic_ab_coeff(a, b)
   msg += Label(
-    "rsolvents",
+    "resolvent",
     unicodify_univariate_polynomial(coeffs, descent=true),
   )
   let roots = rational_root_candidates(coeffs)

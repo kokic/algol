@@ -1,6 +1,12 @@
 {
   "import": [
     "moonbitlang/core/bigint",
+    "moonbitlang/core/list",
+    "moonbitlang/core/hashmap",
+    "moonbitlang/core/random",
+    "moonbitlang/core/env",
+    "moonbitlang/core/quickcheck",
+    "moonbitlang/core/quickcheck/splitmix",
     "moonbitlang/x/rational",
     "kokic/prime",
     "kokic/algol/tracing"
