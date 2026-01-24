@@ -1,11 +1,10 @@
 ///|
 pub fn generate_time_based_seed() -> Bytes {
   let timestamp = @env.now()
-  let splitmix_rng = @splitmix.new(seed=timestamp)
-  let part1 = splitmix_rng.next_uint64()
-  let part2 = splitmix_rng.next_uint64()
-  let part3 = splitmix_rng.next_uint64()
-  let part4 = splitmix_rng.next_uint64()
+  let part1 = timestamp - 25
+  let part2 = timestamp + 25
+  let part3 = timestamp - 41
+  let part4 = timestamp + 41
   uint64_array_to_bytes([part1, part2, part3, part4])
 }
 
