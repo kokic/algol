@@ -15,14 +15,15 @@ pub fn uint64_array_to_bytes(values : Array[UInt64]) -> Bytes {
     let byte_index = i % 8
     let value = values[value_index]
     match byte_index {
-      0 => (value & 0xFFUL).to_byte()
-      1 => ((value >> 8) & 0xFFUL).to_byte()
-      2 => ((value >> 16) & 0xFFUL).to_byte()
-      3 => ((value >> 24) & 0xFFUL).to_byte()
-      4 => ((value >> 32) & 0xFFUL).to_byte()
-      5 => ((value >> 40) & 0xFFUL).to_byte()
-      6 => ((value >> 48) & 0xFFUL).to_byte()
-      7 => ((value >> 56) & 0xFFUL).to_byte()
+      // to_byte(): & 0xFFUL
+      0 => value.to_byte()
+      1 => (value >> 8).to_byte()
+      2 => (value >> 16).to_byte()
+      3 => (value >> 24).to_byte()
+      4 => (value >> 32).to_byte()
+      5 => (value >> 40).to_byte()
+      6 => (value >> 48).to_byte()
+      7 => (value >> 56).to_byte()
       _ => b'\x00' // unreachable!
     }
   })
