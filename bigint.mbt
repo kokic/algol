@@ -53,3 +53,18 @@ pub fn random_range(
 ) -> BigInt {
   inclusive + random(rand, exclusive - inclusive)
 }
+
+///|
+pub impl Semiring for BigInt with zero() {
+  0N
+}
+
+///|
+pub impl Semiring for BigInt with one() -> BigInt {
+  1N
+}
+
+///|
+pub impl Semiring for BigInt with is_zero(self : BigInt) -> Bool {
+  self.is_zero()
+}
