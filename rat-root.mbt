@@ -130,7 +130,7 @@ pub fn is_root(coeffs : Array[BigInt], r : @rational.BigRational) -> Bool {
     let j = degree - 1 - i
     acc = acc * r + @rational.new(coeffs[j], 1).unwrap()
   }
-  acc == big_rat_zero
+  acc == rat_zero
 }
 
 ///|

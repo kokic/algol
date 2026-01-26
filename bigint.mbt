@@ -60,11 +60,16 @@ pub impl Semiring for BigInt with zero() {
 }
 
 ///|
-pub impl Semiring for BigInt with one() -> BigInt {
+pub impl Semiring for BigInt with one() {
   1N
 }
 
 ///|
-pub impl Semiring for BigInt with is_zero(self : BigInt) -> Bool {
+pub impl Semiring for BigInt with is_zero(self) {
   self.is_zero()
+}
+
+///|
+pub impl ToUnicode for BigInt with unicodify(self) {
+  self.to_string()
 }

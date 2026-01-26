@@ -1,3 +1,7 @@
+pub(open) trait ToUnicode {
+  unicodify(Self) -> String
+}
+
 ///|
 pub fn unicodify_monomial(term : String, coeff : String, power : String) -> String {
   guard !(coeff == "0") else { "0" }
