@@ -1,9 +1,14 @@
+///|
 pub(open) trait ToUnicode {
   unicodify(Self) -> String
 }
 
 ///|
-pub fn unicodify_monomial(term : String, coeff : String, power : String) -> String {
+pub fn unicodify_monomial(
+  term : String,
+  coeff : String,
+  power : String,
+) -> String {
   guard !(coeff == "0") else { "0" }
   guard !(power == "0") else { coeff }
   guard !(power == "1") else { unicodify_monomial_case_power_one(term, coeff) }
@@ -29,13 +34,15 @@ fn str_abs(number : String) -> StringView {
 pub fn unicodify_univariate_polynomial(
   term? : String = "x",
   coeffs : Array[BigInt],
-  descent? : Bool = false,
+  descent? : Bool = true,
 ) -> String {
   guard !coeffs.is_empty() else { "0" }
+  let degree = coeffs.length() - 1
+  let exp = i => if descent { degree - i } else { i }
   let monomials = coeffs
-    .mapi((i, c) => unicodify_monomial(term, "\{c}", "\{i}"))
+    .mapi((i, c) => unicodify_monomial(term, "\{c}", "\{exp(i)}"))
     .filter(s => s != "0")
-  let monomials = if descent { monomials.rev() } else { monomials }
+  let monomials = if descent { monomials } else { monomials.rev() }
   monomials[1:].fold(init=monomials[0], (s, t) => {
     guard t.has_prefix("-") else { "\{s} + \{t}" }
     "\{s} - \{str_abs(t)}"
@@ -45,7 +52,11 @@ pub fn unicodify_univariate_polynomial(
 ///|
 test {
   assert_eq(
-    unicodify_univariate_polynomial([-1, 2, -3, -5, 7], descent=true),
+    unicodify_univariate_polynomial([11, 2, -5, 89, 1]),
+    "11x⁴ + 2x³ - 5x² + 89x + 1",
+  )
+  assert_eq(
+    unicodify_univariate_polynomial([-1, 2, -3, -5, 7], descent=false),
     "7x⁴ - 5x³ - 3x² + 2x - 1",
   )
 }

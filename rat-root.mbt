@@ -122,6 +122,8 @@ pub fn rational_root_candidates(
 }
 
 ///|
+/// ### Parameters
+/// * `coeffs` : [a_0, a_1, ..., a_n]
 pub fn is_root(coeffs : Array[BigInt], r : @rational.BigRational) -> Bool {
   guard !coeffs.is_empty() else { false }
   let degree = coeffs.length() - 1

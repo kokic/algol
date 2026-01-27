@@ -389,10 +389,11 @@ test "BigRat: Polynomial div" {
   let vars = ["x"]
   let u = Polynomial::from_term(vars, [2], rat_one) +
     Polynomial::from_constant(vars, rat_one)
-  println(u.unicodify())
   let v = Polynomial::from_term(vars, [1], rat_one) +
     Polynomial::from_constant(vars, rat_one)
   let (q, r) = u.div_rem(v).unwrap()
-  println("\{u.unicodify()} / \{v.unicodify()}")
-  println((q.unicodify(), r.unicodify()))
+  assert_eq(
+    "\{u.unicodify()} = (\{v.unicodify()})(\{q.unicodify()}) + \{r.unicodify()}",
+    "x² + 1 = (x + 1)(x - 1) + 2",
+  )
 }
