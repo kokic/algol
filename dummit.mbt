@@ -12,16 +12,50 @@ fn quintic_ab_coeff(a : BigInt, b : BigInt) -> Array[BigInt] {
 }
 
 ///|
-/// Return quintic equation x⁵ + ax + b is solvable
-pub fn is_quintic_ab_solvable(a : BigInt, b : BigInt) -> Bool {
-  let mut msg : Message = Empty
-  let descent_coeffs = quintic_ab_coeff(a, b)
+pub struct QuinticSolvabilityReport {
+  check_name : String
+  resolvent : String
+  roots : Array[@rational.BigRational]
+  solvable : Bool
+  msg : Message
+} derive(Show)
+
+///|
+fn build_quintic_solvability_report(
+  check_name : String,
+  descent_coeffs : Array[BigInt],
+) -> QuinticSolvabilityReport {
   let ascent_coeffs = descent_coeffs.rev()
-  msg += Label("resolvent", unicodify_univariate_polynomial(descent_coeffs))
   let roots = rational_root_candidates(ascent_coeffs)
-  let roots = roots.filter(r => is_root(ascent_coeffs, r))
-  msg += Label("roots", roots.to_string())
-  msg.exit("is_quintic_ab_solvable", !roots.is_empty())
+    .filter(r => is_root(ascent_coeffs, r))
+  let resolvent = unicodify_univariate_polynomial(descent_coeffs)
+  let proof_log = Child(
+    Text(": \{check_name}"),
+    group([Label("resolvent", resolvent), Label("roots", roots.to_string())]),
+  )
+  QuinticSolvabilityReport::{
+    check_name,
+    resolvent,
+    roots,
+    solvable: !roots.is_empty(),
+    msg: proof_log,
+  }
+}
+
+///|
+pub fn check_quintic_ab_solvability(
+  a : BigInt,
+  b : BigInt,
+) -> QuinticSolvabilityReport {
+  build_quintic_solvability_report("is_quintic_ab_solvable", quintic_ab_coeff(a, b))
+}
+
+///|
+/// Return whether quintic equation x^5 + ax + b is solvable.
+pub fn is_quintic_ab_solvable(a : BigInt, b : BigInt) -> Bool {
+  let report = check_quintic_ab_solvability(a, b)
+  tracing.add(report.msg)
+  report.solvable
 }
 
 ///|
@@ -112,32 +146,41 @@ fn quintic_pqrs_coeff(
 }
 
 ///|
-/// Return quintic equation x⁵ + px³ + qx² + rx + s is solvable
+pub fn check_quintic_pqrs_solvability(
+  p : BigInt,
+  q : BigInt,
+  r : BigInt,
+  s : BigInt,
+) -> QuinticSolvabilityReport {
+  build_quintic_solvability_report(
+    "is_quintic_pqrs_solvable",
+    quintic_pqrs_coeff(p, q, r, s),
+  )
+}
+
+///|
+/// Return whether quintic equation x^5 + px^3 + qx^2 + rx + s is solvable.
 pub fn is_quintic_pqrs_solvable(
   p : BigInt,
   q : BigInt,
   r : BigInt,
   s : BigInt,
 ) -> Bool {
-  let mut msg : Message = Empty
-  let descent_coeffs = quintic_pqrs_coeff(p, q, r, s)
-  let ascent_coeffs = descent_coeffs.rev()
-  msg += Label("resolvent", unicodify_univariate_polynomial(descent_coeffs))
-  let roots = rational_root_candidates(ascent_coeffs)
-  let roots = roots.filter(r => is_root(ascent_coeffs, r))
-  msg += Label("roots", roots.to_string())
-  msg.exit("is_quintic_pqrs_solvable", !roots.is_empty())
+  let report = check_quintic_pqrs_solvability(p, q, r, s)
+  tracing.add(report.msg)
+  report.solvable
 }
 
 ///|
 test {
+  let report = check_quintic_ab_solvability(-5, 12)
+  assert_true(report.solvable)
+  assert_eq(report.check_name, "is_quintic_ab_solvable")
+  inspect(report.roots, content="[40]")
+  let proof = report.msg.display(2)
+  assert_true(proof.contains(": is_quintic_ab_solvable"))
+  assert_true(proof.contains("[resolvent]: "))
+  assert_true(proof.contains("[roots]: [40]"))
   assert_true(is_quintic_ab_solvable(-5, 12))
-  assert_eq(
-    tracing.msg.display(2),
-    (
-      #|: is_quintic_ab_solvable
-      #|  [resolvent]: x⁶ - 40x⁵ + 1000x⁴ - 20000x³ + 250000x² - 66400000x + 976000000
-      #|  [roots]: [40]
-    ),
-  )
+  assert_eq(tracing.msg.display(2), proof)
 }

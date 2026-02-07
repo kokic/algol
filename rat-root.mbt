@@ -2,7 +2,7 @@
 /// All positive m such that m | n
 pub fn generate_divisors(n : BigInt) -> Array[BigInt] {
   guard n != 0 else { [] }
-  let factors = factor(n)
+  let factors = factor(@prime.abs(n))
   let mut divisors = [1N]
   for p, exp in factors {
     let p_big = p
@@ -22,6 +22,11 @@ pub fn generate_divisors(n : BigInt) -> Array[BigInt] {
     divisors = new_divisors
   }
   divisors
+}
+
+///|
+fn drop_constant_term(coeffs : Array[BigInt]) -> Array[BigInt] {
+  Array::makei(coeffs.length() - 1, i => coeffs[i + 1])
 }
 
 ///|
@@ -82,6 +87,7 @@ pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
 ///|
 test "Generate divisors" {
   assert_eq(generate_divisors(52), [1, 2, 4, 13, 26, 52])
+  assert_eq(generate_divisors(-52), [1, 2, 4, 13, 26, 52])
 }
 
 ///|
@@ -93,13 +99,20 @@ pub fn rational_root_candidates(
   let length = coeffs.length()
   guard length >= 1 else { [] }
 
-  // degree >= 1
+  // If a_0 == 0 then x = 0 is a root; keep descending to find more roots.
   let a_0 = coeffs[0]
-  let a_n = coeffs[length - 1]
   guard !a_0.is_zero() else {
     let zero = @rational.new(0N, 1N).unwrap()
-    [zero]
+    guard length > 1 else { [zero] }
+    let cases = [zero]
+    for r in rational_root_candidates(drop_constant_term(coeffs)) {
+      cases.push(r)
+    }
+    cases.sort()
+    cases.dedup()
+    return cases
   }
+  let a_n = coeffs[length - 1]
   let bound = try! cauchy_bound(coeffs)
   let ps = generate_divisors(@prime.abs(a_0))
   let qs = generate_divisors(@prime.abs(a_n))
@@ -140,4 +153,11 @@ test "120x^4 - 166x^3 + x^2 + 74x - 24" {
   let coeffs = [120N, -166, 1, 74, -24].rev()
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
   inspect(roots, content="[-2/3, 1/2, 3/4, 4/5]")
+}
+
+///|
+test "x^3 + x^2 - 2x has roots -2, 0, 1" {
+  let coeffs = [0N, -2, 1, 1]
+  let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+  inspect(roots, content="[-2, 0, 1]")
 }
