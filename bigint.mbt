@@ -70,6 +70,82 @@ pub impl Semiring for BigInt with is_zero(self) {
 }
 
 ///|
+pub impl Ring for BigInt with neg(self : BigInt) -> BigInt {
+  -self
+}
+
+///|
+pub impl Ring for BigInt with sub(self : BigInt, other : BigInt) -> BigInt {
+  self - other
+}
+
+///|
+pub impl EuclideanDomain for BigInt with abs(self : BigInt) -> BigInt {
+  if self < 0N {
+    -self
+  } else {
+    self
+  }
+}
+
+///|
+pub impl EuclideanDomain for BigInt with signum(self : BigInt) -> Int {
+  signum(self)
+}
+
+///|
+pub impl EuclideanDomain for BigInt with compare(self : BigInt, other : BigInt) -> Int {
+  self.compare(other)
+}
+
+///|
+pub impl EuclideanDomain for BigInt with div_mod_euclid(
+  self : BigInt,
+  divisor : BigInt,
+) -> (BigInt, BigInt) {
+  let b = if divisor < 0N { -divisor } else { divisor }
+  let mut q = self / b
+  let mut r = self % b
+  if r < 0N {
+    q = q - 1
+    r = r + b
+  }
+  if divisor < 0N {
+    q = -q
+  }
+  (q, r)
+}
+
+///|
+pub impl EuclideanDomain for BigInt with extended_gcd(
+  a : BigInt,
+  b : BigInt,
+) -> (BigInt, BigInt, BigInt) {
+  let mut old_r = a
+  let mut r = b
+  let mut old_s = 1N
+  let mut s = 0N
+  let mut old_t = 0N
+  let mut t = 1N
+  while !r.is_zero() {
+    let (q, next_r) = EuclideanDomain::div_mod_euclid(old_r, r)
+    let next_s = old_s - q * s
+    let next_t = old_t - q * t
+    old_r = r
+    r = next_r
+    old_s = s
+    s = next_s
+    old_t = t
+    t = next_t
+  }
+  if old_r < 0N {
+    (-old_r, -old_s, -old_t)
+  } else {
+    (old_r, old_s, old_t)
+  }
+}
+
+///|
 pub impl ToUnicode for BigInt with unicodify(self) {
   self.to_string()
 }

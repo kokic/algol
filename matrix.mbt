@@ -9,14 +9,32 @@ pub struct Matrix[T] {
 pub type MatrixZ = Matrix[BigInt]
 
 ///|
-pub struct HNFReport {
-  original : MatrixZ
-  hnf : MatrixZ
-  left_unimodular : MatrixZ
+pub struct HNFReport[T] {
+  original : Matrix[T]
+  hnf : Matrix[T]
+  left_unimodular : Matrix[T]
   pivot_cols : Array[Int]
   is_verified : Bool
   trace : Message
 } derive(Show)
+
+///|
+pub type HNFReportZ = HNFReport[BigInt]
+
+///|
+pub struct SNFReport[T] {
+  original : Matrix[T]
+  snf : Matrix[T]
+  left_unimodular : Matrix[T]
+  right_unimodular : Matrix[T]
+  diagonal : Array[T]
+  rank : Int
+  is_verified : Bool
+  trace : Message
+} derive(Show)
+
+///|
+pub type SNFReportZ = SNFReport[BigInt]
 
 ///|
 pub fn[T] Matrix::from_rows(rows : Array[Array[T]]) -> Matrix[T] raise {
@@ -102,7 +120,7 @@ fn[T : Eq] matrix_equal(a : Matrix[T], b : Matrix[T]) -> Bool {
 }
 
 ///|
-fn swap_rows(mat : MatrixZ, i : Int, j : Int) -> Unit {
+fn[T] swap_rows(mat : Matrix[T], i : Int, j : Int) -> Unit {
   guard i != j else { return }
   let tmp = mat.data[i]
   mat.data[i] = mat.data[j]
@@ -110,14 +128,24 @@ fn swap_rows(mat : MatrixZ, i : Int, j : Int) -> Unit {
 }
 
 ///|
-fn row_pair_transform(
-  mat : MatrixZ,
+fn[T] swap_cols(mat : Matrix[T], i : Int, j : Int) -> Unit {
+  guard i != j else { return }
+  for r in 0..<mat.rows {
+    let tmp = mat.data[r][i]
+    mat.data[r][i] = mat.data[r][j]
+    mat.data[r][j] = tmp
+  }
+}
+
+///|
+fn[T : Ring] row_pair_transform(
+  mat : Matrix[T],
   i : Int,
   j : Int,
-  a : BigInt,
-  b : BigInt,
-  c : BigInt,
-  d : BigInt,
+  a : T,
+  b : T,
+  c : T,
+  d : T,
 ) -> Unit {
   let row_i = Array::makei(mat.cols, k => mat.data[i][k])
   let row_j = Array::makei(mat.cols, k => mat.data[j][k])
@@ -128,67 +156,85 @@ fn row_pair_transform(
 }
 
 ///|
-fn row_add_multiple(mat : MatrixZ, target : Int, source : Int, scalar : BigInt) -> Unit {
-  guard scalar != 0N else { return }
+fn[T : Ring] col_pair_transform(
+  mat : Matrix[T],
+  i : Int,
+  j : Int,
+  a : T,
+  b : T,
+  c : T,
+  d : T,
+) -> Unit {
+  for r in 0..<mat.rows {
+    let col_i = mat.data[r][i]
+    let col_j = mat.data[r][j]
+    mat.data[r][i] = a * col_i + b * col_j
+    mat.data[r][j] = c * col_i + d * col_j
+  }
+}
+
+///|
+fn[T : Ring] row_add_multiple(
+  mat : Matrix[T],
+  target : Int,
+  source : Int,
+  scalar : T,
+) -> Unit {
+  guard !scalar.is_zero() else { return }
   for k in 0..<mat.cols {
     mat.data[target][k] = mat.data[target][k] + scalar * mat.data[source][k]
   }
 }
 
 ///|
-fn row_negate(mat : MatrixZ, row : Int) -> Unit {
+fn[T : Ring] col_add_multiple(
+  mat : Matrix[T],
+  target : Int,
+  source : Int,
+  scalar : T,
+) -> Unit {
+  guard !scalar.is_zero() else { return }
+  for r in 0..<mat.rows {
+    mat.data[r][target] = mat.data[r][target] + scalar * mat.data[r][source]
+  }
+}
+
+///|
+fn[T : Ring] row_negate(mat : Matrix[T], row : Int) -> Unit {
   for k in 0..<mat.cols {
-    mat.data[row][k] = -mat.data[row][k]
+    mat.data[row][k] = Ring::neg(mat.data[row][k])
   }
 }
 
 ///|
-fn egcd(a : BigInt, b : BigInt) -> (BigInt, BigInt, BigInt) {
-  let mut old_r = a
-  let mut r = b
-  let mut old_s = 1N
-  let mut s = 0N
-  let mut old_t = 0N
-  let mut t = 1N
-  while r != 0N {
-    let q = old_r / r
-    let next_r = old_r - q * r
-    let next_s = old_s - q * s
-    let next_t = old_t - q * t
-    old_r = r
-    r = next_r
-    old_s = s
-    s = next_s
-    old_t = t
-    t = next_t
-  }
-  if old_r < 0N {
-    (-old_r, -old_s, -old_t)
+fn[T : EuclideanDomain] exact_div(a : T, b : T) -> T raise {
+  assert_true(!b.is_zero(), msg="division by zero in exact_div")
+  let (q, r) = EuclideanDomain::div_mod_euclid(a, b)
+  assert_true(
+    r.is_zero(),
+    msg="non-exact division in Euclidean-domain elimination",
+  )
+  q
+}
+
+///|
+fn min_int(a : Int, b : Int) -> Int {
+  if a < b {
+    a
   } else {
-    (old_r, old_s, old_t)
+    b
   }
 }
 
 ///|
-fn euclid_divmod(a : BigInt, b : BigInt) -> (BigInt, BigInt) {
-  // Preconditions: b > 0
-  let mut q = a / b
-  let mut r = a % b
-  if r < 0N {
-    q = q - 1
-    r = r + b
-  }
-  (q, r)
-}
-
-///|
-pub fn Matrix::is_row_hnf(mat : MatrixZ) -> Bool {
+pub fn[T : EuclideanDomain] Matrix::is_row_hnf(mat : Matrix[T]) -> Bool {
+  let zero = T::zero()
   let mut prev_pivot_col = -1
   let mut found_zero_row = false
   for i in 0..<mat.rows {
     let mut pivot_col : Int? = None
     for j in 0..<mat.cols {
-      if mat.data[i][j] != 0N {
+      if mat.data[i][j] != zero {
         pivot_col = Some(j)
         break
       }
@@ -203,19 +249,19 @@ pub fn Matrix::is_row_hnf(mat : MatrixZ) -> Bool {
           return false
         }
         let pivot = mat.data[i][pc]
-        if pivot <= 0N {
+        if pivot.compare(zero) <= 0 {
           return false
         }
         // entries below pivot are zero
         for r in (i + 1)..<mat.rows {
-          if mat.data[r][pc] != 0N {
+          if mat.data[r][pc] != zero {
             return false
           }
         }
         // entries above pivot satisfy 0 <= x < pivot
         for r in 0..<i {
           let x = mat.data[r][pc]
-          if x < 0N || x >= pivot {
+          if x.compare(zero) < 0 || x.compare(pivot) >= 0 {
             return false
           }
         }
@@ -227,9 +273,12 @@ pub fn Matrix::is_row_hnf(mat : MatrixZ) -> Bool {
 }
 
 ///|
-pub fn Matrix::hnf_report(a : MatrixZ) -> HNFReport raise {
+pub fn[T : EuclideanDomain] Matrix::hnf_report(
+  a : Matrix[T],
+) -> HNFReport[T] raise {
+  let zero = T::zero()
   let h = clone_matrix(a)
-  let u : MatrixZ = Matrix::identity(a.rows)
+  let u : Matrix[T] = Matrix::identity(a.rows)
   let pivot_cols = []
   let mut row = 0
 
@@ -238,7 +287,7 @@ pub fn Matrix::hnf_report(a : MatrixZ) -> HNFReport raise {
 
     let mut pivot_row : Int? = None
     for r in row..<h.rows {
-      if h.data[r][col] != 0N {
+      if h.data[r][col] != zero {
         pivot_row = Some(r)
         break
       }
@@ -250,18 +299,18 @@ pub fn Matrix::hnf_report(a : MatrixZ) -> HNFReport raise {
 
     // Euclidean elimination below the pivot.
     for r in (row + 1)..<h.rows {
-      while h.data[r][col] != 0N {
+      while h.data[r][col] != zero {
         let a0 = h.data[row][col]
         let b0 = h.data[r][col]
-        let (g, s, t) = egcd(a0, b0)
-        let c = -(b0 / g)
-        let d = a0 / g
+        let (g, s, t) = T::extended_gcd(a0, b0)
+        let c = Ring::neg(exact_div(b0, g))
+        let d = exact_div(a0, g)
         row_pair_transform(h, row, r, s, t, c, d)
         row_pair_transform(u, row, r, s, t, c, d)
       }
     }
 
-    if h.data[row][col] < 0N {
+    if h.data[row][col].compare(zero) < 0 {
       row_negate(h, row)
       row_negate(u, row)
     }
@@ -270,10 +319,11 @@ pub fn Matrix::hnf_report(a : MatrixZ) -> HNFReport raise {
     let pivot = h.data[row][col]
     for r in 0..<row {
       let a0 = h.data[r][col]
-      if a0 != 0N {
-        let (q, _) = euclid_divmod(a0, pivot)
-        row_add_multiple(h, r, row, -q)
-        row_add_multiple(u, r, row, -q)
+      if a0 != zero {
+        let (q, _) = EuclideanDomain::div_mod_euclid(a0, pivot)
+        let neg_q = Ring::neg(q)
+        row_add_multiple(h, r, row, neg_q)
+        row_add_multiple(u, r, row, neg_q)
       }
     }
 
@@ -302,6 +352,255 @@ pub fn Matrix::hnf_report(a : MatrixZ) -> HNFReport raise {
 }
 
 ///|
-pub fn Matrix::hnf(a : MatrixZ) -> MatrixZ raise {
+pub fn[T : EuclideanDomain] Matrix::hnf(a : Matrix[T]) -> Matrix[T] raise {
   a.hnf_report().hnf
+}
+
+///|
+pub fn Matrix::is_symmetric(
+  a : Matrix[Double],
+  eps? : Double = 0.000000000001,
+) -> Bool {
+  guard a.rows == a.cols else { false }
+  for i in 0..<a.rows {
+    for j in (i + 1)..<a.cols {
+      if (a.data[i][j] - a.data[j][i]).abs() > eps {
+        return false
+      }
+    }
+  }
+  true
+}
+
+///|
+fn cholesky_lower_double(a : Matrix[Double], eps : Double) -> Matrix[Double]? {
+  guard a.rows == a.cols else { return None }
+  guard a.is_symmetric(eps=eps) else { return None }
+
+  let n = a.rows
+  let l = Array::makei(n, _ => Array::makei(n, _ => 0.0))
+  for i in 0..<n {
+    for j in 0..=i {
+      let mut value = a.data[i][j]
+      for k in 0..<j {
+        value = value - l[i][k] * l[j][k]
+      }
+
+      if i == j {
+        if value <= eps || value.is_nan() {
+          return None
+        }
+        l[i][j] = value.sqrt()
+      } else {
+        let denom = l[j][j]
+        if denom.abs() <= eps || denom.is_nan() {
+          return None
+        }
+        l[i][j] = value / denom
+      }
+    }
+  }
+  Some(Matrix::{ rows: n, cols: n, data: l })
+}
+
+///|
+pub fn Matrix::is_positive_definite(
+  a : Matrix[Double],
+  eps? : Double = 0.000000000001,
+) -> Bool {
+  guard eps > 0.0 else { false }
+  cholesky_lower_double(a, eps) is Some(_)
+}
+
+///|
+pub fn Matrix::cholesky(
+  a : Matrix[Double],
+  eps? : Double = 0.000000000001,
+) -> Matrix[Double] raise {
+  assert_true(eps > 0.0, msg="eps must be positive")
+  let maybe_l = cholesky_lower_double(a, eps)
+  assert_true(
+    maybe_l is Some(_),
+    msg="Cholesky requires a symmetric positive definite matrix",
+  )
+  match maybe_l {
+    Some(l) => l
+    None => Matrix::{ rows: 0, cols: 0, data: [] }
+  }
+}
+
+///|
+pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
+  let zero = T::zero()
+  for i in 0..<mat.rows {
+    for j in 0..<mat.cols {
+      if i != j && mat.data[i][j] != zero {
+        return false
+      }
+    }
+  }
+
+  let diag_len = min_int(mat.rows, mat.cols)
+  let mut seen_zero = false
+  let mut prev : T? = None
+  for i in 0..<diag_len {
+    let d = mat.data[i][i]
+    if d == zero {
+      seen_zero = true
+      continue
+    }
+    if seen_zero {
+      return false
+    }
+    if EuclideanDomain::compare(d, zero) <= 0 {
+      return false
+    }
+    match prev {
+      None => ()
+      Some(p) => {
+        let (_, r) = EuclideanDomain::div_mod_euclid(d, p)
+        if !r.is_zero() {
+          return false
+        }
+      }
+    }
+    prev = Some(d)
+  }
+  true
+}
+
+///|
+pub fn[T : EuclideanDomain] Matrix::snf_report(
+  a : Matrix[T],
+) -> SNFReport[T] raise {
+  let zero = T::zero()
+  let one = T::one()
+  let s = clone_matrix(a)
+  let u : Matrix[T] = Matrix::identity(a.rows)
+  let v : Matrix[T] = Matrix::identity(a.cols)
+  let limit = min_int(s.rows, s.cols)
+  let mut k = 0
+
+  while k < limit {
+    let mut pivot_pos : (Int, Int)? = None
+    for i in k..<s.rows {
+      for j in k..<s.cols {
+        if s.data[i][j] != zero {
+          pivot_pos = Some((i, j))
+          break
+        }
+      }
+      if pivot_pos is Some(_) {
+        break
+      }
+    }
+    guard pivot_pos is Some((pi, pj)) else { break }
+
+    swap_rows(s, k, pi)
+    swap_rows(u, k, pi)
+    swap_cols(s, k, pj)
+    swap_cols(v, k, pj)
+
+    while true {
+      let mut changed = false
+
+      for i in (k + 1)..<s.rows {
+        if s.data[i][k] != zero {
+          let a0 = s.data[k][k]
+          let b0 = s.data[i][k]
+          let (g, s0, t0) = T::extended_gcd(a0, b0)
+          let c = Ring::neg(exact_div(b0, g))
+          let d = exact_div(a0, g)
+          row_pair_transform(s, k, i, s0, t0, c, d)
+          row_pair_transform(u, k, i, s0, t0, c, d)
+          changed = true
+        }
+      }
+
+      for j in (k + 1)..<s.cols {
+        if s.data[k][j] != zero {
+          let a0 = s.data[k][k]
+          let b0 = s.data[k][j]
+          let (g, s0, t0) = T::extended_gcd(a0, b0)
+          let c = Ring::neg(exact_div(b0, g))
+          let d = exact_div(a0, g)
+          col_pair_transform(s, k, j, s0, t0, c, d)
+          col_pair_transform(v, k, j, s0, t0, c, d)
+          changed = true
+        }
+      }
+
+      let mut witness : (Int, Int)? = None
+      if !changed {
+        for i in (k + 1)..<s.rows {
+          for j in (k + 1)..<s.cols {
+            let (_, r) = EuclideanDomain::div_mod_euclid(s.data[i][j], s.data[k][k])
+            if !r.is_zero() {
+              witness = Some((i, j))
+              break
+            }
+          }
+          if witness is Some(_) {
+            break
+          }
+        }
+      }
+
+      match witness {
+        None => ()
+        Some((wi, wj)) => {
+          row_add_multiple(s, k, wi, one)
+          row_add_multiple(u, k, wi, one)
+          col_add_multiple(s, k, wj, one)
+          col_add_multiple(v, k, wj, one)
+          changed = true
+        }
+      }
+
+      if !changed {
+        break
+      }
+    }
+
+    if EuclideanDomain::compare(s.data[k][k], zero) < 0 {
+      row_negate(s, k)
+      row_negate(u, k)
+    }
+
+    k = k + 1
+  }
+
+  let diagonal = []
+  for i in 0..<limit {
+    let d = s.data[i][i]
+    if d != zero {
+      diagonal.push(d)
+    }
+  }
+  let rank = diagonal.length()
+  let product = u.mul(a).mul(v)
+  let is_verified = matrix_equal(product, s) && s.is_snf()
+  let trace = Child(
+    Text(": snf_report"),
+    group([
+      Label("shape", "\{a.rows}x\{a.cols}"),
+      Label("rank", "\{rank}"),
+      Label("is_verified", "\{is_verified}"),
+    ]),
+  )
+  SNFReport::{
+    original: a,
+    snf: s,
+    left_unimodular: u,
+    right_unimodular: v,
+    diagonal,
+    rank,
+    is_verified,
+    trace,
+  }
+}
+
+///|
+pub fn[T : EuclideanDomain] Matrix::snf(a : Matrix[T]) -> Matrix[T] raise {
+  a.snf_report().snf
 }
