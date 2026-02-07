@@ -98,6 +98,17 @@ test "Factor multivariate full report matches wrapper and contains trace" {
   assert_eq(report.remainder.unicodify(), remainder.unicodify())
   assert_eq(report.primitive_remainder.unicodify(), remainder.unicodify())
   assert_eq(report.content, rat_one)
+  let original_q = (Polynomial::from_term(vars, [1, 0], rat_one) -
+    Polynomial::from_constant(vars, rat_one)) *
+    (Polynomial::from_term(vars, [1, 0], rat_one) -
+      Polynomial::from_constant(vars, rat_one)) *
+    (Polynomial::from_term(vars, [0, 1], rat_one) +
+      Polynomial::from_constant(vars, @rational.new(2N, 1N).unwrap())) *
+    (Polynomial::from_term(vars, [1, 0], rat_one) +
+      Polynomial::from_term(vars, [0, 1], rat_one) +
+      Polynomial::from_constant(vars, rat_one))
+  let reconstructed = Polynomial::reconstruct_from_report(report)
+  assert_eq(report.is_reconstruction_valid, (reconstructed - original_q).terms.is_empty())
   assert_true(report.rounds >= 1)
   let trace = report.trace.display(2)
   assert_true(trace.contains(": factor_multivariate_full_report"))
@@ -116,10 +127,40 @@ test "Factor multivariate full report extracts non-unit content" {
 
   let report = poly.factor_multivariate_full_report()
   assert_eq(report.content, @rational.new(6N, 1N).unwrap())
+  let original_q = Polynomial::from_constant(vars, @rational.new(6N, 1N).unwrap()) *
+    (Polynomial::from_term(vars, [1], rat_one) -
+      Polynomial::from_constant(vars, rat_one)) *
+    (Polynomial::from_term(vars, [1], rat_one) -
+      Polynomial::from_constant(vars, rat_one)) *
+    (Polynomial::from_term(vars, [1], rat_one) +
+      Polynomial::from_constant(vars, @rational.new(2N, 1N).unwrap()))
+  let reconstructed = Polynomial::reconstruct_from_report(report)
+  assert_eq(report.is_reconstruction_valid, (reconstructed - original_q).terms.is_empty())
 
   let factor_strings = report.factors.map(f => f.unicodify())
   factor_strings.sort()
   inspect(factor_strings, content="[\"x + 2\", \"x - 1\"]")
   assert_eq(report.primitive_remainder.unicodify(), "1")
   assert_eq(report.remainder.unicodify(), "1")
+}
+
+///|
+test "Reconstruct from multivariate factor report" {
+  let vars = ["x", "y"]
+  let x = Polynomial::from_term(vars, [1, 0], 1N)
+  let y = Polynomial::from_term(vars, [0, 1], 1N)
+  let one = Polynomial::from_constant(vars, 1N)
+  let three = Polynomial::from_constant(vars, 3N)
+  let poly = three * (x - one) * (x + y + one)
+
+  let report = poly.factor_multivariate_full_report()
+  assert_true(report.is_reconstruction_valid)
+  let reconstructed = Polynomial::reconstruct_from_report(report)
+  let original = Polynomial::from_term(vars, [0, 0], @rational.new(3N, 1N).unwrap()) *
+    (Polynomial::from_term(vars, [1, 0], rat_one) -
+      Polynomial::from_constant(vars, rat_one)) *
+    (Polynomial::from_term(vars, [1, 0], rat_one) +
+      Polynomial::from_term(vars, [0, 1], rat_one) +
+      Polynomial::from_constant(vars, rat_one))
+  assert_true((reconstructed - original).terms.is_empty())
 }

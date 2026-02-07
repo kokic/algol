@@ -773,7 +773,40 @@ pub struct FactorMultivariateFullReport {
   remainder : Polynomial[@rational.BigRational]
   rounds : Int
   stop_reason : String
+  is_reconstruction_valid : Bool
   trace : Message
+}
+
+///|
+fn polynomial_equal_bigrat(
+  a : Polynomial[@rational.BigRational],
+  b : Polynomial[@rational.BigRational],
+) -> Bool {
+  (a - b).terms.is_empty()
+}
+
+///|
+fn reconstruct_from_factor_multivariate_full_report_parts(
+  content : @rational.BigRational,
+  factors : Array[Polynomial[@rational.BigRational]],
+  primitive_remainder : Polynomial[@rational.BigRational],
+) -> Polynomial[@rational.BigRational] {
+  let mut reconstructed = primitive_remainder
+  for factor in factors {
+    reconstructed = reconstructed * factor
+  }
+  scale_bigrat_polynomial(reconstructed, content)
+}
+
+///|
+pub fn Polynomial::reconstruct_from_report(
+  report : FactorMultivariateFullReport,
+) -> Polynomial[@rational.BigRational] {
+  reconstruct_from_factor_multivariate_full_report_parts(
+    report.content,
+    report.factors,
+    report.primitive_remainder,
+  )
 }
 
 ///|
@@ -800,6 +833,7 @@ pub fn Polynomial::factor_multivariate_full_report(
       remainder,
       rounds: 0,
       stop_reason: "zero_polynomial",
+      is_reconstruction_valid: true,
       trace,
     }
   }
@@ -863,6 +897,13 @@ pub fn Polynomial::factor_multivariate_full_report(
     trace_data.push(msg)
   }
   let trace = Child(Text(": factor_multivariate_full_report"), group(trace_data))
+  let reconstructed = reconstruct_from_factor_multivariate_full_report_parts(
+    content,
+    factors,
+    remainder,
+  )
+  let original = bigint_to_bigrat_polynomial(poly)
+  let is_reconstruction_valid = polynomial_equal_bigrat(reconstructed, original)
 
   FactorMultivariateFullReport::{
     content,
@@ -871,6 +912,7 @@ pub fn Polynomial::factor_multivariate_full_report(
     remainder,
     rounds,
     stop_reason,
+    is_reconstruction_valid,
     trace,
   }
 }
