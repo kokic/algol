@@ -103,10 +103,11 @@ pub fn rational_root_candidates(
   let a_0 = coeffs[0]
   guard !a_0.is_zero() else {
     let zero = @rational.new(0N, 1N).unwrap()
-    guard length > 1 else { [zero] }
     let cases = [zero]
-    for r in rational_root_candidates(drop_constant_term(coeffs)) {
-      cases.push(r)
+    if length > 2 {
+      for r in rational_root_candidates(drop_constant_term(coeffs)) {
+        cases.push(r)
+      }
     }
     cases.sort()
     cases.dedup()
@@ -160,4 +161,11 @@ test "x^3 + x^2 - 2x has roots -2, 0, 1" {
   let coeffs = [0N, -2, 1, 1]
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
   inspect(roots, content="[-2, 0, 1]")
+}
+
+///|
+test "Linear polynomial with zero constant term has root zero" {
+  let coeffs = [0N, -2]
+  let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+  inspect(roots, content="[0]")
 }
