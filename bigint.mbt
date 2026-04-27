@@ -117,10 +117,11 @@ pub impl EuclideanDomain for BigInt with div_mod_euclid(
 }
 
 ///|
-pub impl EuclideanDomain for BigInt with extended_gcd(
-  a : BigInt,
-  b : BigInt,
-) -> (BigInt, BigInt, BigInt) {
+pub impl EuclideanDomain for BigInt with extended_gcd(a : BigInt, b : BigInt) -> (
+  BigInt,
+  BigInt,
+  BigInt,
+) {
   let mut old_r = a
   let mut r = b
   let mut old_s = 1N
