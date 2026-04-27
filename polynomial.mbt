@@ -504,6 +504,73 @@ fn divides_exact(
 }
 
 ///|
+fn[E] monomial_content_exps(poly : Polynomial[E]) -> Array[Int] {
+  let arity = poly.vars.length()
+  let content = Array::makei(arity, _ => 0)
+  let mut first = true
+  for _, term in poly.terms {
+    for i in 0..<arity {
+      if first || term.exps[i] < content[i] {
+        content[i] = term.exps[i]
+      }
+    }
+    first = false
+  }
+  content
+}
+
+///|
+fn divide_bigrat_polynomial_by_monomial(
+  poly : Polynomial[@rational.BigRational],
+  exps : Array[Int],
+) -> Polynomial[@rational.BigRational]? {
+  let terms = @hashmap.HashMap::new()
+  for _, term in poly.terms {
+    guard exps_divides(exps, term.exps) else { return None }
+    let new_exps = Array::makei(term.exps.length(), i => term.exps[i] - exps[i])
+    add_term_to_map(terms, new_exps, term.coeff)
+  }
+  Some(Polynomial::{ vars: poly.vars, terms })
+}
+
+///|
+fn increment_exps_within_bounds(exps : Array[Int], bounds : Array[Int]) -> Bool {
+  for i in 0..<exps.length() {
+    if exps[i] < bounds[i] {
+      exps[i] = exps[i] + 1
+      for j in 0..<i {
+        exps[j] = 0
+      }
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn common_divisor_from_monomial_quotients(
+  candidate : Polynomial[@rational.BigRational],
+  a : Polynomial[@rational.BigRational],
+  b : Polynomial[@rational.BigRational],
+) -> Polynomial[@rational.BigRational] raise {
+  let bounds = monomial_content_exps(candidate)
+  let exps = Array::makei(bounds.length(), _ => 0)
+  while true {
+    match divide_bigrat_polynomial_by_monomial(candidate, exps) {
+      Some(quotient) => {
+        let quotient = normalize_monic(quotient)
+        if divides_exact(a, quotient) && divides_exact(b, quotient) {
+          return quotient
+        }
+      }
+      None => ()
+    }
+    guard increment_exps_within_bounds(exps, bounds) else { break }
+  }
+  Polynomial::from_constant(candidate.vars, rat_one)
+}
+
+///|
 pub fn Polynomial::gcd_multivariate(
   a : Polynomial[BigInt],
   b : Polynomial[BigInt],
@@ -546,7 +613,7 @@ pub fn Polynomial::gcd_multivariate(
       if divides_exact(a_q, candidate) && divides_exact(b_q, candidate) {
         candidate
       } else {
-        Polynomial::from_constant(a.vars, rat_one)
+        common_divisor_from_monomial_quotients(candidate, a_q, b_q)
       }
     }
     None => Polynomial::from_constant(a.vars, rat_one)

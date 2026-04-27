@@ -47,3 +47,19 @@ test "Heuristic multivariate gcd supports different variable orders" {
   assert_eq(d.coeff([0, 1]), rat_one)
   assert_eq(d.coeff([0, 0]), rat_zero)
 }
+
+///|
+test "Heuristic multivariate gcd removes extraneous decoded monomial factor" {
+  let vars = ["x", "y"]
+  let x = Polynomial::from_term(vars, [1, 0], 1N)
+  let y = Polynomial::from_term(vars, [0, 1], 1N)
+  let common = x + y
+  let f = x * common
+  let g = y * common
+  let d = f.gcd_multivariate(g)
+
+  assert_eq(d.terms.length(), 2)
+  assert_eq(d.coeff([1, 0]), rat_one)
+  assert_eq(d.coeff([0, 1]), rat_one)
+  assert_eq(d.coeff([0, 0]), rat_zero)
+}
