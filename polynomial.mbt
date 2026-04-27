@@ -2,7 +2,7 @@
 pub struct Term[E] {
   exps : Array[Int]
   coeff : E
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub struct Polynomial[E] {

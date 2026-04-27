@@ -5,7 +5,7 @@ pub enum Message {
   Label(String, String)
   Group(@list.List[Message])
   Child(Message, Message)
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub impl Default for Message with default() -> Message {

@@ -3,7 +3,12 @@ pub struct Matrix[T] {
   rows : Int
   cols : Int
   data : Array[Array[T]]
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl[T : Show] Show for Matrix[T] with output(self, logger) {
+  logger.write_object(self.data)
+}
 
 ///|
 pub type MatrixZ = Matrix[BigInt]
@@ -16,7 +21,7 @@ pub struct HNFReport[T] {
   pivot_cols : Array[Int]
   is_verified : Bool
   trace : Message
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub type HNFReportZ = HNFReport[BigInt]
@@ -31,7 +36,7 @@ pub struct SNFReport[T] {
   rank : Int
   is_verified : Bool
   trace : Message
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub type SNFReportZ = SNFReport[BigInt]
@@ -39,9 +44,7 @@ pub type SNFReportZ = SNFReport[BigInt]
 ///|
 pub fn[T] Matrix::from_rows(rows : Array[Array[T]]) -> Matrix[T] raise {
   let row_count = rows.length()
-  guard row_count > 0 else {
-    return Matrix::{ rows: 0, cols: 0, data: [] }
-  }
+  guard row_count > 0 else { return Matrix::{ rows: 0, cols: 0, data: [] } }
   let col_count = rows[0].length()
   for i in 1..<row_count {
     assert_true(
@@ -49,7 +52,9 @@ pub fn[T] Matrix::from_rows(rows : Array[Array[T]]) -> Matrix[T] raise {
       msg="inconsistent row length at index \{i}",
     )
   }
-  let data = Array::makei(row_count, i => Array::makei(col_count, j => rows[i][j]))
+  let data = Array::makei(row_count, i => {
+    Array::makei(col_count, j => rows[i][j])
+  })
   Matrix::{ rows: row_count, cols: col_count, data }
 }
 
@@ -62,10 +67,9 @@ pub fn[T] Matrix::transpose(a : Matrix[T]) -> Matrix[T] {
 ///|
 pub fn[T : Semiring] Matrix::identity(n : Int) -> Matrix[T] raise {
   assert_true(n >= 0, msg="matrix size must be non-negative")
-  let data = Array::makei(
-    n,
-    i => Array::makei(n, j => if i == j { T::one() } else { T::zero() }),
-  )
+  let data = Array::makei(n, i => {
+    Array::makei(n, j => if i == j { T::one() } else { T::zero() })
+  })
   Matrix::{ rows: n, cols: n, data }
 }
 
@@ -75,12 +79,17 @@ pub fn[T : Add] Matrix::add(a : Matrix[T], b : Matrix[T]) -> Matrix[T] raise {
     a.rows == b.rows && a.cols == b.cols,
     msg="dimension mismatch: \{a.rows}x\{a.cols} plus \{b.rows}x\{b.cols}",
   )
-  let data = Array::makei(a.rows, i => Array::makei(a.cols, j => a.data[i][j] + b.data[i][j]))
+  let data = Array::makei(a.rows, i => {
+    Array::makei(a.cols, j => a.data[i][j] + b.data[i][j])
+  })
   Matrix::{ rows: a.rows, cols: a.cols, data }
 }
 
 ///|
-pub fn[T : Semiring] Matrix::mul(a : Matrix[T], b : Matrix[T]) -> Matrix[T] raise {
+pub fn[T : Semiring] Matrix::mul(
+  a : Matrix[T],
+  b : Matrix[T],
+) -> Matrix[T] raise {
   assert_true(
     a.cols == b.rows,
     msg="dimension mismatch: \{a.rows}x\{a.cols} times \{b.rows}x\{b.cols}",
@@ -102,7 +111,9 @@ fn[T] clone_matrix(mat : Matrix[T]) -> Matrix[T] {
   Matrix::{
     rows: mat.rows,
     cols: mat.cols,
-    data: Array::makei(mat.rows, i => Array::makei(mat.cols, j => mat.data[i][j])),
+    data: Array::makei(mat.rows, i => {
+      Array::makei(mat.cols, j => mat.data[i][j])
+    }),
   }
 }
 
@@ -375,12 +386,12 @@ pub fn Matrix::is_symmetric(
 ///|
 fn cholesky_lower_double(a : Matrix[Double], eps : Double) -> Matrix[Double]? {
   guard a.rows == a.cols else { return None }
-  guard a.is_symmetric(eps=eps) else { return None }
+  guard a.is_symmetric(eps~) else { return None }
 
   let n = a.rows
   let l = Array::makei(n, _ => Array::makei(n, _ => 0.0))
   for i in 0..<n {
-    for j in 0..=i {
+    for j in 0..<=i {
       let mut value = a.data[i][j]
       for k in 0..<j {
         value = value - l[i][k] * l[j][k]
@@ -534,7 +545,10 @@ pub fn[T : EuclideanDomain] Matrix::snf_report(
       if !changed {
         for i in (k + 1)..<s.rows {
           for j in (k + 1)..<s.cols {
-            let (_, r) = EuclideanDomain::div_mod_euclid(s.data[i][j], s.data[k][k])
+            let (_, r) = EuclideanDomain::div_mod_euclid(
+              s.data[i][j],
+              s.data[k][k],
+            )
             if !r.is_zero() {
               witness = Some((i, j))
               break

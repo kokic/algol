@@ -6,8 +6,8 @@ test "MatrixZ hnf report verifies square full-rank input" {
   assert_true(report.is_verified)
   assert_true(report.hnf.is_row_hnf())
   assert_eq(report.pivot_cols, [0, 1])
-  assert_eq(report.hnf, Matrix::from_rows([[2N, 0N], [0N, 4N]]))
-  assert_eq(report.left_unimodular.mul(report.original), report.hnf)
+  @test.assert_eq(report.hnf, Matrix::from_rows([[2N, 0N], [0N, 4N]]))
+  @test.assert_eq(report.left_unimodular.mul(report.original), report.hnf)
   assert_true(report.trace.display(2).contains(": hnf_report"))
 }
 
@@ -18,8 +18,8 @@ test "MatrixZ hnf report handles rank-deficient rectangular matrix" {
 
   assert_true(report.is_verified)
   assert_eq(report.pivot_cols, [0])
-  assert_eq(report.hnf, Matrix::from_rows([[1N, 2N, 3N], [0N, 0N, 0N]]))
-  assert_eq(a.hnf(), report.hnf)
+  @test.assert_eq(report.hnf, Matrix::from_rows([[1N, 2N, 3N], [0N, 0N, 0N]]))
+  @test.assert_eq(a.hnf(), report.hnf)
 }
 
 ///|
@@ -29,7 +29,7 @@ test "MatrixZ hnf report handles all-zero matrix" {
 
   assert_true(report.is_verified)
   assert_eq(report.pivot_cols, [])
-  assert_eq(report.hnf, a)
+  @test.assert_eq(report.hnf, a)
   assert_true(report.hnf.is_row_hnf())
 }
 
@@ -49,7 +49,7 @@ test "MatrixZ is_row_hnf rejects non-canonical forms" {
 test "Matrix generic transpose works for non-numeric element type" {
   let a : Matrix[String] = Matrix::from_rows([["a", "b"], ["c", "d"]])
   let expected : Matrix[String] = Matrix::from_rows([["a", "c"], ["b", "d"]])
-  assert_eq(a.transpose(), expected)
+  @test.assert_eq(a.transpose(), expected)
 }
 
 ///|

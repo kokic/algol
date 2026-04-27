@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/list",
   "moonbitlang/core/hashmap",
   "moonbitlang/core/random",
+  "moonbitlang/core/test",
   "moonbitlang/core/env",
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/quickcheck/splitmix",

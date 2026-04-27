@@ -18,7 +18,7 @@ pub struct QuinticSolvabilityReport {
   roots : Array[@rational.BigRational]
   solvable : Bool
   msg : Message
-} derive(Show)
+}
 
 ///|
 fn build_quintic_solvability_report(
