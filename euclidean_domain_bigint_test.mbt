@@ -21,3 +21,10 @@ test "BigInt Euclidean extended_gcd satisfies Bezout identity" {
   assert_eq(a * s + b * t, g)
   assert_eq(g, EuclideanDomain::abs(gcd(a, b)))
 }
+
+///|
+test "BigInt gcd is non-negative" {
+  assert_eq(gcd(-2N, 0N), 2N)
+  assert_eq(gcd(0N, -2N), 2N)
+  assert_eq(gcd(-12N, -18N), 6N)
+}

@@ -24,7 +24,7 @@ pub fn signum(a : BigInt) -> Int {
 pub fn gcd(a : BigInt, b : BigInt) -> BigInt {
   for a = a, b = b {
     if signum(b) == 0 {
-      break a
+      break if a < 0N { -a } else { a }
     }
     continue b, a % b
   }
