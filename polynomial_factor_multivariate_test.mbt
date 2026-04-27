@@ -145,6 +145,21 @@ test "Factor multivariate full report extracts non-unit content" {
 }
 
 ///|
+test "Factor multivariate full report preserves negative content" {
+  let vars = ["x"]
+  let x = Polynomial::from_term(vars, [1], 1N)
+  let minus_two = Polynomial::from_constant(vars, -2N)
+  let poly = minus_two * x
+
+  let report = poly.factor_multivariate_full_report()
+  assert_eq(report.content, @rational.new(-2N, 1N).unwrap())
+  assert_true(report.is_reconstruction_valid)
+  let factor_strings = report.factors.map(f => f.unicodify())
+  inspect(factor_strings, content="[\"x\"]")
+  assert_eq(report.primitive_remainder.unicodify(), "1")
+}
+
+///|
 test "Reconstruct from multivariate factor report" {
   let vars = ["x", "y"]
   let x = Polynomial::from_term(vars, [1, 0], 1N)

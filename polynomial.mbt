@@ -704,6 +704,21 @@ fn polynomial_content_bigint(poly : Polynomial[BigInt]) -> BigInt {
 }
 
 ///|
+fn polynomial_signed_content_bigint(poly : Polynomial[BigInt]) -> BigInt {
+  let content = polynomial_content_bigint(poly)
+  guard content != 0N else { 0N }
+  match leading_term(poly) {
+    Some(term) =>
+      if term.coeff < 0N {
+        -content
+      } else {
+        content
+      }
+    None => 0N
+  }
+}
+
+///|
 fn divide_bigint_polynomial_by_scalar(
   poly : Polynomial[BigInt],
   scalar : BigInt,
@@ -838,7 +853,7 @@ pub fn Polynomial::factor_multivariate_full_report(
     }
   }
 
-  let content_bigint = polynomial_content_bigint(poly)
+  let content_bigint = polynomial_signed_content_bigint(poly)
   let content = bigint_to_bigrat(content_bigint)
   let primitive = if content_bigint == 0N || content_bigint == 1N {
     poly
@@ -884,7 +899,6 @@ pub fn Polynomial::factor_multivariate_full_report(
     }
   }
 
-  let remainder = normalize_monic(remainder)
   let trace_data = [
     Label("content", ToUnicode::unicodify(content)),
     Label("rounds", "\{rounds}"),
