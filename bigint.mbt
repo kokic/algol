@@ -1,13 +1,4 @@
 ///|
-pub fn min(a : BigInt, b : BigInt) -> BigInt {
-  if a < b {
-    a
-  } else {
-    b
-  }
-}
-
-///|
 /// Also see: https://github.com/moonbitlang/x/blob/9cd244e9dc63d3fe253d767d9932a4d9bc27d10d/decimal/decimal.mbt#L452-L460
 pub fn signum(a : BigInt) -> Int {
   if a.is_zero() {
