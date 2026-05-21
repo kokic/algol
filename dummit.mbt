@@ -35,13 +35,10 @@ fn build_quintic_solvability_report(
     is_root(ascent_coeffs, r)
   })
   let resolvent = unicodify_univariate_polynomial(descent_coeffs)
-  let proof_log = Child(
-    Text(": \{check_name}"),
-    group([
-      Label("resolvent", resolvent),
-      Label("roots", format_bigrat_array(roots)),
-    ]),
-  )
+  let proof_log = step(check_name, [
+    Label("resolvent", resolvent),
+    Label("roots", format_bigrat_array(roots)),
+  ])
   QuinticSolvabilityReport::{
     check_name,
     resolvent,

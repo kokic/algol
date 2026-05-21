@@ -76,10 +76,81 @@ pub fn group(data : Array[Message]) -> Message {
 }
 
 ///|
+pub fn step(name : String, data : Array[Message]) -> Message {
+  Child(Text(": \{name}"), group(data))
+}
+
+///|
+pub type Trace = @tracing.Tracing[Message]
+
+///|
+pub fn trace_clear(trace : Trace) -> Unit {
+  trace.reset()
+}
+
+///|
+pub fn trace_text(trace : Trace, content : String) -> Unit {
+  trace.add(Text(content))
+}
+
+///|
+pub fn trace_label(trace : Trace, name : String, value : String) -> Unit {
+  trace.add(Label(name, value))
+}
+
+///|
+pub fn trace_step(trace : Trace, name : String, data : Array[Message]) -> Unit {
+  trace.add(step(name, data))
+}
+
+///|
+pub fn trace_enter_step(trace : Trace) -> Unit {
+  trace.enter()
+}
+
+///|
+pub fn trace_leave_step(trace : Trace, name : String) -> Unit {
+  trace.leave(fn(parent, child) { parent + Child(Text(": \{name}"), child) })
+}
+
+///|
+pub fn trace_discard_step(trace : Trace) -> Unit {
+  trace.discard()
+}
+
+///|
+pub fn trace_render(trace : Trace, step? : Int = 2) -> String {
+  trace.snapshot().display(step)
+}
+
+///|
 pub let tracing : @tracing.Tracing[Message] = @tracing.Tracing::new()
 
 ///|
 pub fn[V] Message::exit(self : Message, name : String, value : V) -> V {
   tracing.add(Child(Text(": \{name}"), self))
   value
+}
+
+///|
+test "Trace records named steps by hand" {
+  let trace : Trace = @tracing.Tracing::new()
+  trace_step(trace, "prepare", [Label("input", "6"), Label("normalized", "3")])
+  trace_enter_step(trace)
+  trace_label(trace, "candidate", "2")
+  trace_label(trace, "remainder", "1")
+  trace_leave_step(trace, "divide")
+  assert_eq(
+    trace_render(trace, step=2),
+    (
+      #|: prepare
+      #|  [input]: 6
+      #|  [normalized]: 3
+      #|: divide
+      #|  [candidate]: 2
+      #|  [remainder]: 1
+    ),
+  )
+  trace_clear(trace)
+  assert_eq(trace_render(trace, step=2), "")
 }

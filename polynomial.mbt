@@ -901,17 +901,14 @@ pub fn Polynomial::factor_multivariate_full_report(
 ) -> FactorMultivariateFullReport raise {
   guard !poly.terms.is_empty() else {
     let remainder = bigint_to_bigrat_polynomial(poly)
-    let trace = Child(
-      Text(": factor_multivariate_full_report"),
-      group([
-        Label("content", "0"),
-        Label("rounds", "0"),
-        Label("stop_reason", "zero_polynomial"),
-        Label("factors", "[]"),
-        Label("primitive_remainder", remainder.unicodify()),
-        Label("remainder", remainder.unicodify()),
-      ]),
-    )
+    let trace = step("factor_multivariate_full_report", [
+      Label("content", "0"),
+      Label("rounds", "0"),
+      Label("stop_reason", "zero_polynomial"),
+      Label("factors", "[]"),
+      Label("primitive_remainder", remainder.unicodify()),
+      Label("remainder", remainder.unicodify()),
+    ])
     return FactorMultivariateFullReport::{
       content: rat_zero,
       factors: [],
@@ -948,16 +945,10 @@ pub fn Polynomial::factor_multivariate_full_report(
         let (step_factors, step_remainder) = step_input.factor_multivariate()
         rounds = rounds + 1
         round_messages.push(
-          Child(
-            Text("round \{rounds}"),
-            group([
-              Label(
-                "factors",
-                "[\{join(step_factors.map(f => f.unicodify()))}]",
-              ),
-              Label("remainder", step_remainder.unicodify()),
-            ]),
-          ),
+          step("round \{rounds}", [
+            Label("factors", "[\{join(step_factors.map(f => f.unicodify()))}]"),
+            Label("remainder", step_remainder.unicodify()),
+          ]),
         )
 
         if step_factors.is_empty() {
@@ -984,10 +975,7 @@ pub fn Polynomial::factor_multivariate_full_report(
   for msg in round_messages {
     trace_data.push(msg)
   }
-  let trace = Child(
-    Text(": factor_multivariate_full_report"),
-    group(trace_data),
-  )
+  let trace = step("factor_multivariate_full_report", trace_data)
   let reconstructed = reconstruct_from_factor_multivariate_full_report_parts(
     content, factors, remainder,
   )
