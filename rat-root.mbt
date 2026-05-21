@@ -9,7 +9,7 @@ pub fn generate_divisors(n : BigInt) -> Array[BigInt] {
     let mut power = 1N
     // precompute powers [1, p, p^2, ..., p^exp]
     let powers = [power]
-    for _ in 1..=exp {
+    for _ in 1..<=exp {
       power = power * p_big
       powers.push(power)
     }
@@ -38,7 +38,7 @@ pub fn cauchy_bound(coeffs : Array[BigInt]) -> BigInt raise {
   let a_n = coeffs[n]
   assert_true(a_n != 0, msg="leading coefficient [\{a_n}] must be non-zero")
   let mut max_ratio = 0N
-  for i in 0..=n {
+  for i in 0..<=n {
     let a_i_abs = @prime.abs(coeffs[i])
     let a_n_abs = @prime.abs(a_n)
     let ratio = if a_i_abs == 0 { 0N } else { a_i_abs / a_n_abs }
@@ -60,7 +60,7 @@ pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
     let mut power = 1N
     // precompute powers [1, p, p^2, ..., p^exp]
     let powers = [1N]
-    for _ in 1..=exp {
+    for _ in 1..<=exp {
       power = power * p_big
       if power > bound {
         break
@@ -86,8 +86,8 @@ pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
 
 ///|
 test "Generate divisors" {
-  assert_eq(generate_divisors(52), [1, 2, 4, 13, 26, 52])
-  assert_eq(generate_divisors(-52), [1, 2, 4, 13, 26, 52])
+  @test.assert_eq(generate_divisors(52), [1, 2, 4, 13, 26, 52])
+  @test.assert_eq(generate_divisors(-52), [1, 2, 4, 13, 26, 52])
 }
 
 ///|
@@ -153,19 +153,22 @@ pub fn is_root(coeffs : Array[BigInt], r : @rational.BigRational) -> Bool {
 test "120x^4 - 166x^3 + x^2 + 74x - 24" {
   let coeffs = [120N, -166, 1, 74, -24].rev()
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  inspect(roots, content="[-2/3, 1/2, 3/4, 4/5]")
+  assert_eq(
+    "[\{join(roots.map(root => root.to_string()))}]",
+    "[-2/3, 1/2, 3/4, 4/5]",
+  )
 }
 
 ///|
 test "x^3 + x^2 - 2x has roots -2, 0, 1" {
   let coeffs = [0N, -2, 1, 1]
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  inspect(roots, content="[-2, 0, 1]")
+  assert_eq("[\{join(roots.map(root => root.to_string()))}]", "[-2, 0, 1]")
 }
 
 ///|
 test "Linear polynomial with zero constant term has root zero" {
   let coeffs = [0N, -2]
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  inspect(roots, content="[0]")
+  assert_eq("[\{join(roots.map(root => root.to_string()))}]", "[0]")
 }

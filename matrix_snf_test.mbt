@@ -5,7 +5,7 @@ test "MatrixZ snf report diagonalizes full-rank square matrix" {
 
   assert_true(report.is_verified)
   assert_true(report.snf.is_snf())
-  assert_eq(report.diagonal, [1N, 18N])
+  @test.assert_eq(report.diagonal, [1N, 18N])
   assert_eq(report.rank, 2)
   @test.assert_eq(
     report.left_unimodular.mul(report.original).mul(report.right_unimodular),
@@ -21,7 +21,7 @@ test "MatrixZ snf report handles rank-deficient rectangular matrix" {
 
   assert_true(report.is_verified)
   assert_true(report.snf.is_snf())
-  assert_eq(report.diagonal, [2N])
+  @test.assert_eq(report.diagonal, [2N])
   assert_eq(report.rank, 1)
 }
 
@@ -32,7 +32,7 @@ test "MatrixZ snf report handles all-zero matrix" {
 
   assert_true(report.is_verified)
   assert_true(report.snf.is_snf())
-  assert_eq(report.diagonal, [])
+  @test.assert_eq(report.diagonal, [])
   assert_eq(report.rank, 0)
   @test.assert_eq(a.snf(), report.snf)
 }

@@ -5,7 +5,7 @@ test "MatrixZ hnf report verifies square full-rank input" {
 
   assert_true(report.is_verified)
   assert_true(report.hnf.is_row_hnf())
-  assert_eq(report.pivot_cols, [0, 1])
+  @test.assert_eq(report.pivot_cols, [0, 1])
   @test.assert_eq(report.hnf, Matrix::from_rows([[2N, 0N], [0N, 4N]]))
   @test.assert_eq(report.left_unimodular.mul(report.original), report.hnf)
   assert_true(report.trace.display(2).contains(": hnf_report"))
@@ -17,7 +17,7 @@ test "MatrixZ hnf report handles rank-deficient rectangular matrix" {
   let report = a.hnf_report()
 
   assert_true(report.is_verified)
-  assert_eq(report.pivot_cols, [0])
+  @test.assert_eq(report.pivot_cols, [0])
   @test.assert_eq(report.hnf, Matrix::from_rows([[1N, 2N, 3N], [0N, 0N, 0N]]))
   @test.assert_eq(a.hnf(), report.hnf)
 }
@@ -28,14 +28,18 @@ test "MatrixZ hnf report handles all-zero matrix" {
   let report = a.hnf_report()
 
   assert_true(report.is_verified)
-  assert_eq(report.pivot_cols, [])
+  @test.assert_eq(report.pivot_cols, [])
   @test.assert_eq(report.hnf, a)
   assert_true(report.hnf.is_row_hnf())
 }
 
 ///|
 test "MatrixZ is_row_hnf rejects non-canonical forms" {
-  let good : MatrixZ = Matrix::from_rows([[2N, 1N, 0N], [0N, 3N, 2N], [0N, 0N, 0N]])
+  let good : MatrixZ = Matrix::from_rows([
+    [2N, 1N, 0N],
+    [0N, 3N, 2N],
+    [0N, 0N, 0N],
+  ])
   assert_true(good.is_row_hnf())
 
   let bad_above : MatrixZ = Matrix::from_rows([[2N, 3N], [0N, 3N]])

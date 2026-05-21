@@ -4,7 +4,10 @@ fn approx_eq_double(a : Double, b : Double, eps : Double) -> Bool {
 }
 
 ///|
-fn matmul_double(a : Matrix[Double], b : Matrix[Double]) -> Matrix[Double] raise {
+fn matmul_double(
+  a : Matrix[Double],
+  b : Matrix[Double],
+) -> Matrix[Double] raise {
   assert_true(
     a.cols == b.rows,
     msg="dimension mismatch: \{a.rows}x\{a.cols} times \{b.rows}x\{b.cols}",
@@ -22,7 +25,11 @@ fn matmul_double(a : Matrix[Double], b : Matrix[Double]) -> Matrix[Double] raise
 }
 
 ///|
-fn approx_eq_matrix(a : Matrix[Double], b : Matrix[Double], eps : Double) -> Bool {
+fn approx_eq_matrix(
+  a : Matrix[Double],
+  b : Matrix[Double],
+  eps : Double,
+) -> Bool {
   guard a.rows == b.rows && a.cols == b.cols else { false }
   for i in 0..<a.rows {
     for j in 0..<a.cols {

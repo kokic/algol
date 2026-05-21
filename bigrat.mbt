@@ -45,6 +45,7 @@ pub impl Field for @rational.BigRational with inv(self : @rational.BigRational) 
   @rational.new(1N, 1).unwrap() / self
 }
 
+///|
 pub impl ToUnicode for @rational.BigRational with unicodify(self) {
   self.to_string()
 }

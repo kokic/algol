@@ -7,7 +7,21 @@ pub struct Matrix[T] {
 
 ///|
 pub impl[T : Show] Show for Matrix[T] with output(self, logger) {
-  logger.write_object(self.data)
+  logger.write_char('[')
+  for i in 0..<self.rows {
+    if i > 0 {
+      logger.write_string(", ")
+    }
+    logger.write_char('[')
+    for j in 0..<self.cols {
+      if j > 0 {
+        logger.write_string(", ")
+      }
+      logger.write_object(self.data[i][j])
+    }
+    logger.write_char(']')
+  }
+  logger.write_char(']')
 }
 
 ///|
@@ -348,7 +362,7 @@ pub fn[T : EuclideanDomain] Matrix::hnf_report(
     Text(": hnf_report"),
     group([
       Label("shape", "\{a.rows}x\{a.cols}"),
-      Label("pivot_cols", pivot_cols.to_string()),
+      Label("pivot_cols", "[\{join(pivot_cols.map(col => col.to_string()))}]"),
       Label("is_verified", "\{is_verified}"),
     ]),
   )

@@ -54,7 +54,7 @@ fn[E : Semiring] add_term_to_map(
 
 ///|
 pub fn[E] Polynomial::zero(vars : Array[String]) -> Polynomial[E] {
-  Polynomial::{ vars, terms: @hashmap.HashMap::new() }
+  Polynomial::{ vars, terms: @hashmap.HashMap([]) }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub fn[E : Semiring] Polynomial::from_term(
   coeff : E,
 ) -> Polynomial[E] raise {
   assert_exp_arity(vars, exps)
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   add_term_to_map(terms, exps, coeff)
   Polynomial::{ vars, terms }
 }
@@ -103,7 +103,7 @@ fn[E : Semiring] unsafe_polynomial_add(
   b : Polynomial[E],
 ) -> Polynomial[E] {
   // assert_same_vars(a.vars, b.vars)
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in a.terms {
     add_term_to_map(terms, term.exps, term.coeff)
   }
@@ -131,7 +131,7 @@ fn[E : Semiring] align_to_vars(
   let index_map = Array::makei(poly.vars.length(), fn(i) {
     var_index.get(poly.vars[i]).unwrap()
   })
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     let exps = Array::makei(new_vars.length(), _ => 0)
     for i in 0..<index_map.length() {
@@ -148,7 +148,7 @@ fn[E : Semiring] mutual_align_vars(
   b : Polynomial[E],
 ) -> (Polynomial[E], Polynomial[E]) {
   let new_vars = []
-  let var_index = @hashmap.HashMap::new()
+  let var_index = @hashmap.HashMap([])
   for i in 0..<a.vars.length() {
     let v = a.vars[i]
     new_vars.push(v)
@@ -182,7 +182,7 @@ pub fn[E : Semiring] unsafe_polynomial_mul(
   b : Polynomial[E],
 ) -> Polynomial[E] {
   // assert_same_vars(a.vars, b.vars)
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term_a in a.terms {
     guard !term_a.coeff.is_zero() else { continue }
     for _, term_b in b.terms {
@@ -205,7 +205,9 @@ pub impl[E : Semiring] Mul for Polynomial[E] with mul(a, b) -> Polynomial[E] {
 }
 
 ///|
-fn[E : Semiring] dense_univariate_coeffs(poly : Polynomial[E]) -> Array[E] raise {
+fn[E : Semiring] dense_univariate_coeffs(
+  poly : Polynomial[E],
+) -> Array[E] raise {
   assert_true(
     poly.vars.length() == 1,
     msg="expected univariate polynomial, got \{poly.vars.length()} vars",
@@ -234,7 +236,7 @@ fn bigint_to_bigrat(value : BigInt) -> @rational.BigRational {
 fn bigint_to_bigrat_polynomial(
   poly : Polynomial[BigInt],
 ) -> Polynomial[@rational.BigRational] {
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for key, term in poly.terms {
     terms[key] = Term::{ exps: term.exps, coeff: bigint_to_bigrat(term.coeff) }
   }
@@ -293,14 +295,13 @@ pub fn Polynomial::factor_by_rational_roots(
     while true {
       let linear = linear_factor_from_root(remainder.vars, root)
       match remainder.div_rem(linear) {
-        Some((quotient, rem)) => {
+        Some((quotient, rem)) =>
           if rem.terms.is_empty() {
             factors.push(root)
             remainder = quotient
           } else {
             break
           }
-        }
         None => break
       }
     }
@@ -321,7 +322,7 @@ fn scale_bigrat_polynomial(
   poly : Polynomial[@rational.BigRational],
   factor : @rational.BigRational,
 ) -> Polynomial[@rational.BigRational] {
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     add_term_to_map(terms, term.exps, term.coeff * factor)
   }
@@ -347,9 +348,11 @@ fn mul_bigint_by_nonnegative_int(value : BigInt, times : Int) -> BigInt {
 }
 
 ///|
-fn derivative_univariate_bigint(poly : Polynomial[BigInt]) -> Polynomial[BigInt] raise {
+fn derivative_univariate_bigint(
+  poly : Polynomial[BigInt],
+) -> Polynomial[BigInt] raise {
   assert_univariate_vars(poly.vars)
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     let exp = term.exps[0]
     assert_true(exp >= 0, msg="negative exponent [\{exp}] is not supported")
@@ -465,7 +468,7 @@ fn kronecker_embed_univariate(
   poly : Polynomial[BigInt],
   weights : Array[Int],
 ) -> Polynomial[@rational.BigRational] {
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     let encoded_exp = encode_kronecker_exps(term.exps, weights)
     add_term_to_map(terms, [encoded_exp], bigint_to_bigrat(term.coeff))
@@ -479,7 +482,7 @@ fn kronecker_decode_univariate(
   vars : Array[String],
   base : Int,
 ) -> Polynomial[@rational.BigRational]? {
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     guard term.exps.length() == 1 else { return None }
     let encoded_exp = term.exps[0]
@@ -524,7 +527,7 @@ fn divide_bigrat_polynomial_by_monomial(
   poly : Polynomial[@rational.BigRational],
   exps : Array[Int],
 ) -> Polynomial[@rational.BigRational]? {
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     guard exps_divides(exps, term.exps) else { return None }
     let new_exps = Array::makei(term.exps.length(), i => term.exps[i] - exps[i])
@@ -629,7 +632,7 @@ fn derivative_multivariate_bigint(
     0 <= var_index && var_index < poly.vars.length(),
     msg="variable index out of range: \{var_index}",
   )
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     let exp = term.exps[var_index]
     assert_true(exp >= 0, msg="negative exponent [\{exp}] is not supported")
@@ -657,12 +660,16 @@ fn square_free_part_multivariate_heuristic(
     let g = poly.gcd_multivariate(dp)
     match common_g {
       None => common_g = Some(g)
-      Some(curr) => {
-        match (try_bigrat_to_bigint_polynomial(curr), try_bigrat_to_bigint_polynomial(g)) {
-          (Some(curr_i), Some(g_i)) => common_g = Some(curr_i.gcd_multivariate(g_i))
+      Some(curr) =>
+        match
+          (
+            try_bigrat_to_bigint_polynomial(curr),
+            try_bigrat_to_bigint_polynomial(g),
+          ) {
+          (Some(curr_i), Some(g_i)) =>
+            common_g = Some(curr_i.gcd_multivariate(g_i))
           _ => ()
         }
-      }
     }
   }
 
@@ -751,7 +758,7 @@ fn specialized_rational_roots_at_zero(
 fn try_bigrat_to_bigint_polynomial(
   poly : Polynomial[@rational.BigRational],
 ) -> Polynomial[BigInt]? {
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     guard term.coeff.is_integer() else { return None }
     add_term_to_map(terms, term.exps, term.coeff.trunc())
@@ -775,12 +782,7 @@ fn polynomial_signed_content_bigint(poly : Polynomial[BigInt]) -> BigInt {
   let content = polynomial_content_bigint(poly)
   guard content != 0N else { 0N }
   match leading_term(poly) {
-    Some(term) =>
-      if term.coeff < 0N {
-        -content
-      } else {
-        content
-      }
+    Some(term) => if term.coeff < 0N { -content } else { content }
     None => 0N
   }
 }
@@ -791,7 +793,7 @@ fn divide_bigint_polynomial_by_scalar(
   scalar : BigInt,
 ) -> Polynomial[BigInt] raise {
   assert_true(scalar != 0N, msg="scalar must be non-zero")
-  let terms = @hashmap.HashMap::new()
+  let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
     assert_true(
       term.coeff % scalar == 0N,
@@ -818,7 +820,10 @@ fn linear_factor_for_var(
 ///|
 pub fn Polynomial::factor_multivariate(
   poly : Polynomial[BigInt],
-) -> (Array[Polynomial[@rational.BigRational]], Polynomial[@rational.BigRational]) raise {
+) -> (
+  Array[Polynomial[@rational.BigRational]],
+  Polynomial[@rational.BigRational],
+) raise {
   guard !poly.terms.is_empty() else { ([], bigint_to_bigrat_polynomial(poly)) }
 
   let mut remainder = square_free_part_multivariate_heuristic(poly)
@@ -830,14 +835,13 @@ pub fn Polynomial::factor_multivariate(
       let factor = linear_factor_for_var(poly.vars, var_index, root)
       while true {
         match remainder.div_rem(factor) {
-          Some((quotient, rem)) => {
+          Some((quotient, rem)) =>
             if rem.terms.is_empty() {
               factors.push(factor)
               remainder = normalize_monic(quotient)
             } else {
               break
             }
-          }
           None => break
         }
       }
@@ -947,7 +951,10 @@ pub fn Polynomial::factor_multivariate_full_report(
           Child(
             Text("round \{rounds}"),
             group([
-              Label("factors", step_factors.map(f => f.unicodify()).to_string()),
+              Label(
+                "factors",
+                "[\{join(step_factors.map(f => f.unicodify()))}]",
+              ),
               Label("remainder", step_remainder.unicodify()),
             ]),
           ),
@@ -970,18 +977,19 @@ pub fn Polynomial::factor_multivariate_full_report(
     Label("content", ToUnicode::unicodify(content)),
     Label("rounds", "\{rounds}"),
     Label("stop_reason", stop_reason),
-    Label("factors", factors.map(f => f.unicodify()).to_string()),
+    Label("factors", "[\{join(factors.map(f => f.unicodify()))}]"),
     Label("primitive_remainder", remainder.unicodify()),
     Label("remainder", remainder.unicodify()),
   ]
   for msg in round_messages {
     trace_data.push(msg)
   }
-  let trace = Child(Text(": factor_multivariate_full_report"), group(trace_data))
+  let trace = Child(
+    Text(": factor_multivariate_full_report"),
+    group(trace_data),
+  )
   let reconstructed = reconstruct_from_factor_multivariate_full_report_parts(
-    content,
-    factors,
-    remainder,
+    content, factors, remainder,
   )
   let original = bigint_to_bigrat_polynomial(poly)
   let is_reconstruction_valid = polynomial_equal_bigrat(reconstructed, original)
@@ -1001,7 +1009,10 @@ pub fn Polynomial::factor_multivariate_full_report(
 ///|
 pub fn Polynomial::factor_multivariate_full(
   poly : Polynomial[BigInt],
-) -> (Array[Polynomial[@rational.BigRational]], Polynomial[@rational.BigRational]) raise {
+) -> (
+  Array[Polynomial[@rational.BigRational]],
+  Polynomial[@rational.BigRational],
+) raise {
   let report = poly.factor_multivariate_full_report()
   (report.factors, report.remainder)
 }
@@ -1035,7 +1046,7 @@ fn[E] leading_term(poly : Polynomial[E]) -> Term[E]? {
 fn[E] clone_terms(
   terms : @hashmap.HashMap[String, Term[E]],
 ) -> @hashmap.HashMap[String, Term[E]] {
-  let copy = @hashmap.HashMap::new()
+  let copy = @hashmap.HashMap([])
   for key, term in terms {
     copy[key] = Term::{ exps: term.exps, coeff: term.coeff }
   }

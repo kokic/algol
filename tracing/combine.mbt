@@ -13,6 +13,7 @@ fn[M] Tracing::update(tracing : Tracing[M], value : M) -> Unit {
   tracing.msg = value
 }
 
+///|
 pub fn[M : Add] Tracing::add(tracing : Tracing[M], value : M) -> Unit {
   tracing.update(tracing.msg.add(value))
 }

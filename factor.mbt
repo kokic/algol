@@ -46,7 +46,7 @@ pub fn pollard_rho_brent_loop(
   for goal = 1; ; goal = goal << 1 {
     let s = t
     let mut v : BigInt = 1
-    for step in 1..=goal {
+    for step in 1..<=goal {
       t = f(t, c, n)
       v = v * @prime.abs(t - s) % n
       guard !v.is_zero() else { return n }
@@ -86,7 +86,7 @@ test {
 ///|
 pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] {
   let mut n = n
-  let factors = @hashmap.HashMap::new()
+  let factors = @hashmap.HashMap([])
   while n > 1 {
     let p = prime_factor_descent(n)
     let count = factors.get(p).unwrap_or(0) + 1

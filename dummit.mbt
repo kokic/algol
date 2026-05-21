@@ -21,17 +21,26 @@ pub struct QuinticSolvabilityReport {
 }
 
 ///|
+fn format_bigrat_array(values : Array[@rational.BigRational]) -> String {
+  "[\{join(values.map(value => value.to_string()))}]"
+}
+
+///|
 fn build_quintic_solvability_report(
   check_name : String,
   descent_coeffs : Array[BigInt],
 ) -> QuinticSolvabilityReport {
   let ascent_coeffs = descent_coeffs.rev()
-  let roots = rational_root_candidates(ascent_coeffs)
-    .filter(r => is_root(ascent_coeffs, r))
+  let roots = rational_root_candidates(ascent_coeffs).filter(r => {
+    is_root(ascent_coeffs, r)
+  })
   let resolvent = unicodify_univariate_polynomial(descent_coeffs)
   let proof_log = Child(
     Text(": \{check_name}"),
-    group([Label("resolvent", resolvent), Label("roots", roots.to_string())]),
+    group([
+      Label("resolvent", resolvent),
+      Label("roots", format_bigrat_array(roots)),
+    ]),
   )
   QuinticSolvabilityReport::{
     check_name,
@@ -47,7 +56,10 @@ pub fn check_quintic_ab_solvability(
   a : BigInt,
   b : BigInt,
 ) -> QuinticSolvabilityReport {
-  build_quintic_solvability_report("is_quintic_ab_solvable", quintic_ab_coeff(a, b))
+  build_quintic_solvability_report(
+    "is_quintic_ab_solvable",
+    quintic_ab_coeff(a, b),
+  )
 }
 
 ///|
@@ -176,7 +188,7 @@ test {
   let report = check_quintic_ab_solvability(-5, 12)
   assert_true(report.solvable)
   assert_eq(report.check_name, "is_quintic_ab_solvable")
-  inspect(report.roots, content="[40]")
+  assert_eq(format_bigrat_array(report.roots), "[40]")
   let proof = report.msg.display(2)
   assert_true(proof.contains(": is_quintic_ab_solvable"))
   assert_true(proof.contains("[resolvent]: "))

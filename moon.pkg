@@ -9,5 +9,5 @@ import {
   "moonbitlang/core/quickcheck/splitmix",
   "moonbitlang/x/rational",
   "kokic/prime",
-  "kokic/algol/tracing"
+  "kokic/algol/tracing",
 }
