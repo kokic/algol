@@ -76,6 +76,21 @@ pub fn group(data : Array[Message]) -> Message {
 }
 
 ///|
+pub fn text(content : String) -> Message {
+  Text(content)
+}
+
+///|
+pub fn label(name : String, value : String) -> Message {
+  Label(name, value)
+}
+
+///|
+pub fn child(parent : Message, data : Message) -> Message {
+  Child(parent, data)
+}
+
+///|
 pub fn step(name : String, data : Array[Message]) -> Message {
   Child(Text(": \{name}"), group(data))
 }

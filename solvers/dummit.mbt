@@ -36,8 +36,8 @@ fn build_quintic_solvability_report(
   })
   let resolvent = unicodify_univariate_polynomial(descent_coeffs)
   let proof_log = step(check_name, [
-    Label("resolvent", resolvent),
-    Label("roots", format_bigrat_array(roots)),
+    label("resolvent", resolvent),
+    label("roots", format_bigrat_array(roots)),
   ])
   QuinticSolvabilityReport::{
     check_name,

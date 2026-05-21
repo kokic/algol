@@ -902,12 +902,12 @@ pub fn Polynomial::factor_multivariate_full_report(
   guard !poly.terms.is_empty() else {
     let remainder = bigint_to_bigrat_polynomial(poly)
     let trace = step("factor_multivariate_full_report", [
-      Label("content", "0"),
-      Label("rounds", "0"),
-      Label("stop_reason", "zero_polynomial"),
-      Label("factors", "[]"),
-      Label("primitive_remainder", remainder.unicodify()),
-      Label("remainder", remainder.unicodify()),
+      label("content", "0"),
+      label("rounds", "0"),
+      label("stop_reason", "zero_polynomial"),
+      label("factors", "[]"),
+      label("primitive_remainder", remainder.unicodify()),
+      label("remainder", remainder.unicodify()),
     ])
     return FactorMultivariateFullReport::{
       content: rat_zero,
@@ -946,8 +946,8 @@ pub fn Polynomial::factor_multivariate_full_report(
         rounds = rounds + 1
         round_messages.push(
           step("round \{rounds}", [
-            Label("factors", "[\{join(step_factors.map(f => f.unicodify()))}]"),
-            Label("remainder", step_remainder.unicodify()),
+            label("factors", "[\{join(step_factors.map(f => f.unicodify()))}]"),
+            label("remainder", step_remainder.unicodify()),
           ]),
         )
 
@@ -965,12 +965,12 @@ pub fn Polynomial::factor_multivariate_full_report(
   }
 
   let trace_data = [
-    Label("content", ToUnicode::unicodify(content)),
-    Label("rounds", "\{rounds}"),
-    Label("stop_reason", stop_reason),
-    Label("factors", "[\{join(factors.map(f => f.unicodify()))}]"),
-    Label("primitive_remainder", remainder.unicodify()),
-    Label("remainder", remainder.unicodify()),
+    label("content", ToUnicode::unicodify(content)),
+    label("rounds", "\{rounds}"),
+    label("stop_reason", stop_reason),
+    label("factors", "[\{join(factors.map(f => f.unicodify()))}]"),
+    label("primitive_remainder", remainder.unicodify()),
+    label("remainder", remainder.unicodify()),
   ]
   for msg in round_messages {
     trace_data.push(msg)
@@ -1148,6 +1148,11 @@ fn unicodify_multivariate_monomial(
   guard !(var_part == "") else { coeff }
   guard !(coeff == "1") else { var_part }
   coeff + var_part
+}
+
+///|
+fn str_abs(number : String) -> StringView {
+  number.strip_prefix("-").unwrap_or(number)
 }
 
 ///|

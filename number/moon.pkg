@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/bigint",
+  "moonbitlang/core/env",
+  "moonbitlang/core/hashmap",
+  "moonbitlang/core/random",
+  "moonbitlang/core/test",
+  "moonbitlang/x/rational",
+  "kokic/prime",
+  "kokic/algol/core",
+}

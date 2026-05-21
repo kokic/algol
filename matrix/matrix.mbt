@@ -359,9 +359,9 @@ pub fn[T : EuclideanDomain] Matrix::hnf_report(
   let product = u.mul(a)
   let is_verified = matrix_equal(product, h) && h.is_row_hnf()
   let trace = step("hnf_report", [
-    Label("shape", "\{a.rows}x\{a.cols}"),
-    Label("pivot_cols", "[\{join(pivot_cols.map(col => col.to_string()))}]"),
-    Label("is_verified", "\{is_verified}"),
+    label("shape", "\{a.rows}x\{a.cols}"),
+    label("pivot_cols", "[\{join(pivot_cols.map(col => col.to_string()))}]"),
+    label("is_verified", "\{is_verified}"),
   ])
   HNFReport::{
     original: a,
@@ -606,9 +606,9 @@ pub fn[T : EuclideanDomain] Matrix::snf_report(
   let product = u.mul(a).mul(v)
   let is_verified = matrix_equal(product, s) && s.is_snf()
   let trace = step("snf_report", [
-    Label("shape", "\{a.rows}x\{a.cols}"),
-    Label("rank", "\{rank}"),
-    Label("is_verified", "\{is_verified}"),
+    label("shape", "\{a.rows}x\{a.cols}"),
+    label("rank", "\{rank}"),
+    label("is_verified", "\{is_verified}"),
   ])
   SNFReport::{
     original: a,

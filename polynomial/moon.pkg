@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/core/hashmap",
+  "moonbitlang/core/test",
+  "moonbitlang/x/rational",
+  "kokic/prime",
+  "kokic/algol/core",
+  "kokic/algol/number",
+  "kokic/algol/trace",
+}
