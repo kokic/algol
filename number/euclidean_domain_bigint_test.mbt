@@ -7,7 +7,7 @@ test "BigInt Euclidean div_mod_euclid keeps non-negative remainder" {
     let b_abs = EuclideanDomain::abs(b)
     assert_true(r >= 0N)
     assert_true(r < b_abs)
-    assert_eq(a, b * q + r)
+    @test.assert_eq(a, b * q + r)
   }
 }
 
@@ -18,13 +18,13 @@ test "BigInt Euclidean extended_gcd satisfies Bezout identity" {
   let (g, s, t) = EuclideanDomain::extended_gcd(a, b)
 
   assert_true(g >= 0N)
-  assert_eq(a * s + b * t, g)
-  assert_eq(g, EuclideanDomain::abs(gcd(a, b)))
+  @test.assert_eq(a * s + b * t, g)
+  @test.assert_eq(g, EuclideanDomain::abs(gcd(a, b)))
 }
 
 ///|
 test "BigInt gcd is non-negative" {
-  assert_eq(gcd(-2N, 0N), 2N)
-  assert_eq(gcd(0N, -2N), 2N)
-  assert_eq(gcd(-12N, -18N), 6N)
+  @test.assert_eq(gcd(-2N, 0N), 2N)
+  @test.assert_eq(gcd(0N, -2N), 2N)
+  @test.assert_eq(gcd(-12N, -18N), 6N)
 }

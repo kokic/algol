@@ -11,7 +11,7 @@ test "Univariate coeff extraction and rational evaluation" {
   let poly_q = Polynomial::from_term(vars, [2], rat_one) +
     Polynomial::from_term(vars, [1], -three_half) +
     Polynomial::from_constant(vars, rat_one)
-  assert_eq(poly_q.eval(one_half), one_half)
+  @test.assert_eq(poly_q.eval(one_half), one_half)
 }
 
 ///|
@@ -21,7 +21,10 @@ test "Find rational roots from univariate polynomial" {
     Polynomial::from_term(vars, [2], 1N) -
     Polynomial::from_term(vars, [1], 2N)
   let roots = poly.find_rational_roots()
-  assert_eq("[\{join(roots.map(root => root.to_string()))}]", "[-2, 0, 1]")
+  @test.assert_eq(
+    "[\{join(roots.map(root => Show::to_string(root)))}]",
+    "[-2, 0, 1]",
+  )
 }
 
 ///|
@@ -32,6 +35,9 @@ test "Factor by rational roots with multiplicity" {
     Polynomial::from_term(vars, [1], 1N) +
     Polynomial::from_constant(vars, 1N)
   let (roots, remainder) = poly.factor_by_rational_roots()
-  assert_eq("[\{join(roots.map(root => root.to_string()))}]", "[-1, 1, 1]")
-  assert_eq(remainder.unicodify(), "1")
+  @test.assert_eq(
+    "[\{join(roots.map(root => Show::to_string(root)))}]",
+    "[-1, 1, 1]",
+  )
+  @test.assert_eq(remainder.unicodify(), "1")
 }

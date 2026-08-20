@@ -1,5 +1,5 @@
 ///|
 pub trait Ring: Semiring {
-  neg(self : Self) -> Self
-  sub(self : Self, other : Self) -> Self
+  fn neg(self : Self) -> Self
+  fn sub(self : Self, other : Self) -> Self
 }

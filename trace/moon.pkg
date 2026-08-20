@@ -1,5 +1,6 @@
 import {
   "moonbitlang/core/list",
+  "moonbitlang/core/test",
   "kokic/algol/core",
   "kokic/algol/tracing",
 }

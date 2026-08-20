@@ -5,13 +5,16 @@ pub struct Term[E] {
 } derive(Debug)
 
 ///|
+pub extend Term with Debug::{to_repr}
+
+///|
 pub struct Polynomial[E] {
   vars : Array[String]
   terms : @hashmap.HashMap[String, Term[E]]
 }
 
 ///|
-impl[E : Neg] Neg for Polynomial[E] with neg(self) {
+impl[E : Neg] Neg for Polynomial[E] with fn neg(self) {
   Polynomial::{
     vars: self.vars,
     terms: self.terms.map((_, v) => Term::{ exps: v.exps, coeff: -v.coeff }),
@@ -41,7 +44,7 @@ fn[E : Semiring] add_term_to_map(
   let key = monomial_key(exps)
   match terms.get(key) {
     Some(term) => {
-      let new_coeff = term.coeff.add(coeff)
+      let new_coeff = Add::add(term.coeff, coeff)
       if new_coeff.is_zero() {
         terms.remove(key)
       } else {
@@ -102,7 +105,6 @@ fn[E : Semiring] unsafe_polynomial_add(
   a : Polynomial[E],
   b : Polynomial[E],
 ) -> Polynomial[E] {
-  // assert_same_vars(a.vars, b.vars)
   let terms = @hashmap.HashMap([])
   for _, term in a.terms {
     add_term_to_map(terms, term.exps, term.coeff)
@@ -165,23 +167,28 @@ fn[E : Semiring] mutual_align_vars(
 }
 
 ///|
-pub impl[E : Semiring] Add for Polynomial[E] with add(a, b) {
+pub impl[E : Semiring] Add for Polynomial[E] with fn add(a, b) {
   guard !vars_equal(a.vars, b.vars) else { unsafe_polynomial_add(a, b) }
   let (a_aligned, b_aligned) = mutual_align_vars(a, b)
   unsafe_polynomial_add(a_aligned, b_aligned)
 }
 
 ///|
-pub impl[E : Semiring + Neg] Sub for Polynomial[E] with sub(a, b) {
+pub extend Polynomial with Add::{add}
+
+///|
+pub impl[E : Semiring + Neg] Sub for Polynomial[E] with fn sub(a, b) {
   a + -b
 }
+
+///|
+pub extend Polynomial with Sub::{sub}
 
 ///|
 pub fn[E : Semiring] unsafe_polynomial_mul(
   a : Polynomial[E],
   b : Polynomial[E],
 ) -> Polynomial[E] {
-  // assert_same_vars(a.vars, b.vars)
   let terms = @hashmap.HashMap([])
   for _, term_a in a.terms {
     guard !term_a.coeff.is_zero() else { continue }
@@ -190,7 +197,7 @@ pub fn[E : Semiring] unsafe_polynomial_mul(
       let exps = Array::makei(a.vars.length(), fn(i) {
         term_a.exps[i] + term_b.exps[i]
       })
-      let coeff = term_a.coeff.mul(term_b.coeff)
+      let coeff = Mul::mul(term_a.coeff, term_b.coeff)
       add_term_to_map(terms, exps, coeff)
     }
   }
@@ -198,11 +205,14 @@ pub fn[E : Semiring] unsafe_polynomial_mul(
 }
 
 ///|
-pub impl[E : Semiring] Mul for Polynomial[E] with mul(a, b) -> Polynomial[E] {
+pub impl[E : Semiring] Mul for Polynomial[E] with fn mul(a, b) -> Polynomial[E] {
   guard !vars_equal(a.vars, b.vars) else { unsafe_polynomial_mul(a, b) }
   let (a_aligned, b_aligned) = mutual_align_vars(a, b)
   unsafe_polynomial_mul(a_aligned, b_aligned)
 }
+
+///|
+pub extend Polynomial with Mul::{mul}
 
 ///|
 fn[E : Semiring] dense_univariate_coeffs(
@@ -248,9 +258,8 @@ fn linear_factor_from_root(
   vars : Array[String],
   root : @rational.BigRational,
 ) -> Polynomial[@rational.BigRational] raise {
-  let x = Polynomial::from_term(vars, [1], rat_one)
-  let c = Polynomial::from_constant(vars, -root)
-  x + c
+  Polynomial::from_term(vars, [1], rat_one) +
+  Polynomial::from_constant(vars, -root)
 }
 
 ///|
@@ -295,14 +304,11 @@ pub fn Polynomial::factor_by_rational_roots(
     while true {
       let linear = linear_factor_from_root(remainder.vars, root)
       match remainder.div_rem(linear) {
-        Some((quotient, rem)) =>
-          if rem.terms.is_empty() {
-            factors.push(root)
-            remainder = quotient
-          } else {
-            break
-          }
-        None => break
+        Some((quotient, rem)) if rem.terms.is_empty() => {
+          factors.push(root)
+          remainder = quotient
+        }
+        _ => break
       }
     }
   }
@@ -835,14 +841,11 @@ pub fn Polynomial::factor_multivariate(
       let factor = linear_factor_for_var(poly.vars, var_index, root)
       while true {
         match remainder.div_rem(factor) {
-          Some((quotient, rem)) =>
-            if rem.terms.is_empty() {
-              factors.push(factor)
-              remainder = normalize_monic(quotient)
-            } else {
-              break
-            }
-          None => break
+          Some((quotient, rem)) if rem.terms.is_empty() => {
+            factors.push(factor)
+            remainder = normalize_monic(quotient)
+          }
+          _ => break
         }
       }
     }
@@ -971,10 +974,8 @@ pub fn Polynomial::factor_multivariate_full_report(
     label("factors", "[\{join(factors.map(f => f.unicodify()))}]"),
     label("primitive_remainder", remainder.unicodify()),
     label("remainder", remainder.unicodify()),
+    ..round_messages,
   ]
-  for msg in round_messages {
-    trace_data.push(msg)
-  }
   let trace = step("factor_multivariate_full_report", trace_data)
   let reconstructed = reconstruct_from_factor_multivariate_full_report_parts(
     content, factors, remainder,
@@ -1008,9 +1009,7 @@ pub fn Polynomial::factor_multivariate_full(
 ///|
 fn exps_divides(divisor : Array[Int], dividend : Array[Int]) -> Bool {
   for i in 0..<divisor.length() {
-    if divisor[i] > dividend[i] {
-      return false
-    }
+    guard divisor[i] <= dividend[i] else { return false }
   }
   true
 }
@@ -1066,13 +1065,13 @@ pub fn[E : Field] Polynomial::div_rem(
       let exp_q = Array::makei(vars.length(), fn(i) {
         lt_dividend.exps[i] - lt_divisor.exps[i]
       })
-      let coeff_q = lt_dividend.coeff.mul(lt_divisor.coeff.inv())
+      let coeff_q = Mul::mul(lt_dividend.coeff, lt_divisor.coeff.inv())
       add_term_to_map(quotient.terms, exp_q, coeff_q)
       for _, term in divisor.terms {
         let new_exps = Array::makei(vars.length(), fn(i) {
           term.exps[i] + exp_q[i]
         })
-        let new_coeff = term.coeff.mul(coeff_q).neg()
+        let new_coeff = Ring::neg(Mul::mul(term.coeff, coeff_q))
         add_term_to_map(dividend.terms, new_exps, new_coeff)
       }
     } else {
@@ -1133,7 +1132,7 @@ fn unicodify_multivariate_monomial(
   exps : Array[Int],
   coeff : String,
 ) -> String {
-  guard !(coeff == "0") else { "0" }
+  guard coeff != "0" else { "0" }
   let var_parts = []
   for i in 0..<vars.length() {
     let exp = exps[i]
@@ -1145,8 +1144,8 @@ fn unicodify_multivariate_monomial(
     }
   }
   let var_part = join(var_parts, separator="")
-  guard !(var_part == "") else { coeff }
-  guard !(coeff == "1") else { var_part }
+  guard !var_part.is_empty() else { coeff }
+  guard coeff != "1" else { var_part }
   coeff + var_part
 }
 
@@ -1156,7 +1155,7 @@ fn str_abs(number : String) -> StringView {
 }
 
 ///|
-pub impl[E : ToUnicode] ToUnicode for Polynomial[E] with unicodify(
+pub impl[E : ToUnicode] ToUnicode for Polynomial[E] with fn unicodify(
   self : Polynomial[E],
 ) -> String {
   guard !self.terms.is_empty() else { "0" }
@@ -1179,15 +1178,18 @@ pub impl[E : ToUnicode] ToUnicode for Polynomial[E] with unicodify(
 }
 
 ///|
+pub extend Polynomial with ToUnicode::{unicodify}
+
+///|
 test "Polynomial addition and multiplication with BigInt" {
   let vars = ["x", "y"]
   let p = Polynomial::from_term(vars, [1, 0], 2N) -
     Polynomial::from_term(vars, [0, 1], 3N)
-  assert_eq(p.unicodify(), "2x - 3y")
+  @test.assert_eq(p.unicodify(), "2x - 3y")
   let q = Polynomial::from_term(vars, [1, 0], 1N) +
     Polynomial::from_constant(vars, 4N)
-  assert_eq(q.unicodify(), "x + 4")
-  assert_eq((p * q).unicodify(), "2x² - 3xy + 8x - 12y")
+  @test.assert_eq(q.unicodify(), "x + 4")
+  @test.assert_eq((p * q).unicodify(), "2x² - 3xy + 8x - 12y")
 }
 
 ///|
@@ -1198,7 +1200,7 @@ test "Polynomial division with BigRat" {
   let v = Polynomial::from_term(vars, [1], rat_one) +
     Polynomial::from_constant(vars, rat_one)
   let (q, r) = u.div_rem(v).unwrap()
-  assert_eq(
+  @test.assert_eq(
     "\{u.unicodify()} = (\{v.unicodify()})(\{q.unicodify()}) + \{r.unicodify()}",
     "x² + 1 = (x + 1)(x - 1) + 2",
   )

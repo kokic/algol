@@ -4,6 +4,7 @@ using @core {join, to_super_string}
 ///|
 using @number {
   trait Semiring,
+  trait Ring,
   trait Field,
   trait ToUnicode,
   rat_zero,

@@ -8,20 +8,29 @@ pub enum Message {
 } derive(Debug)
 
 ///|
-pub impl Default for Message with default() -> Message {
+pub extend Message with Debug::{to_repr}
+
+///|
+pub extend Message with Default::{default}
+
+///|
+pub extend Message with Add::{add}
+
+///|
+pub impl Default for Message with fn default() -> Message {
   Empty
 }
 
 ///|
-pub impl Add for Message with add(self : Message, other : Message) -> Message {
+pub impl Add for Message with fn add(self : Message, other : Message) -> Message {
   match (self, other) {
     (_, Empty) => self
     (Empty, _) => other
     (Text(s), Text(t)) => Text(s + t)
     (Group(xs), Group(ys)) => Group(xs + ys)
     (x, Group(ys)) => Group(ys.prepend(x))
-    (Group(xs), y) => Group(xs.concat(@list.List::from_array([y])))
-    (x, y) => Group(@list.List::from_array([x, y]))
+    (Group(xs), y) => Group(xs.concat(@list.List([y])))
+    (x, y) => Group(@list.List([x, y]))
   }
 }
 
@@ -47,7 +56,7 @@ pub fn Message::display(self : Message, step : Int) -> String {
 
 ///|
 test "Tree" {
-  assert_eq(
+  @test.assert_eq(
     Child(Text("Root"), Child(Text("Parent"), Text("Child"))).display(2),
     (
       #|Root
@@ -55,7 +64,7 @@ test "Tree" {
       #|    Child
     ),
   )
-  assert_eq(
+  @test.assert_eq(
     Child(
       Text("R"),
       group([Text("A"), Text("B"), Child(Text("C"), Text("C.1"))]),
@@ -72,7 +81,7 @@ test "Tree" {
 
 ///|
 pub fn group(data : Array[Message]) -> Message {
-  Group(@list.List::from_array(data))
+  Group(@list.List(data))
 }
 
 ///|
@@ -155,7 +164,7 @@ test "Trace records named steps by hand" {
   trace_label(trace, "candidate", "2")
   trace_label(trace, "remainder", "1")
   trace_leave_step(trace, "divide")
-  assert_eq(
+  @test.assert_eq(
     trace_render(trace, step=2),
     (
       #|: prepare
@@ -167,5 +176,5 @@ test "Trace records named steps by hand" {
     ),
   )
   trace_clear(trace)
-  assert_eq(trace_render(trace, step=2), "")
+  @test.assert_eq(trace_render(trace, step=2), "")
 }

@@ -66,6 +66,8 @@ test "Matrix[Double] cholesky reconstructs original matrix" {
 ///|
 test "Matrix[Double] cholesky raises on non-positive-definite matrix" {
   let bad : Matrix[Double] = Matrix::from_rows([[1.0, 2.0], [2.0, 1.0]])
-  let result : Result[Matrix[Double], Error] = try? bad.cholesky()
+  let result : Result[Matrix[Double], Error] = Ok(bad.cholesky()) catch {
+    err => Err(err)
+  }
   assert_true(result is Err(_))
 }

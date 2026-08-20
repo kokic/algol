@@ -6,7 +6,13 @@ pub struct Matrix[T] {
 } derive(Debug, Eq)
 
 ///|
-pub impl[T : Show] Show for Matrix[T] with output(self, logger) {
+pub extend Matrix with Debug::{to_repr}
+
+///|
+pub extend Matrix with Eq::{equal, not_equal}
+
+///|
+pub impl[T : Show] Show for Matrix[T] with fn output(self, logger) {
   logger.write_char('[')
   for i in 0..<self.rows {
     if i > 0 {
@@ -25,6 +31,9 @@ pub impl[T : Show] Show for Matrix[T] with output(self, logger) {
 }
 
 ///|
+pub extend Matrix with Show::{to_string, output}
+
+///|
 pub type MatrixZ = Matrix[BigInt]
 
 ///|
@@ -36,6 +45,9 @@ pub struct HNFReport[T] {
   is_verified : Bool
   trace : Message
 } derive(Debug)
+
+///|
+pub extend HNFReport with Debug::{to_repr}
 
 ///|
 pub type HNFReportZ = HNFReport[BigInt]
@@ -51,6 +63,9 @@ pub struct SNFReport[T] {
   is_verified : Bool
   trace : Message
 } derive(Debug)
+
+///|
+pub extend SNFReport with Debug::{to_repr}
 
 ///|
 pub type SNFReportZ = SNFReport[BigInt]
@@ -205,7 +220,7 @@ fn[T : Ring] row_add_multiple(
   source : Int,
   scalar : T,
 ) -> Unit {
-  guard !scalar.is_zero() else { return }
+  guard !Semiring::is_zero(scalar) else { return }
   for k in 0..<mat.cols {
     mat.data[target][k] = mat.data[target][k] + scalar * mat.data[source][k]
   }
@@ -218,7 +233,7 @@ fn[T : Ring] col_add_multiple(
   source : Int,
   scalar : T,
 ) -> Unit {
-  guard !scalar.is_zero() else { return }
+  guard !Semiring::is_zero(scalar) else { return }
   for r in 0..<mat.rows {
     mat.data[r][target] = mat.data[r][target] + scalar * mat.data[r][source]
   }
@@ -233,27 +248,18 @@ fn[T : Ring] row_negate(mat : Matrix[T], row : Int) -> Unit {
 
 ///|
 fn[T : EuclideanDomain] exact_div(a : T, b : T) -> T raise {
-  assert_true(!b.is_zero(), msg="division by zero in exact_div")
+  assert_true(!Semiring::is_zero(b), msg="division by zero in exact_div")
   let (q, r) = EuclideanDomain::div_mod_euclid(a, b)
   assert_true(
-    r.is_zero(),
+    Semiring::is_zero(r),
     msg="non-exact division in Euclidean-domain elimination",
   )
   q
 }
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
-  if a < b {
-    a
-  } else {
-    b
-  }
-}
-
-///|
 pub fn[T : EuclideanDomain] Matrix::is_row_hnf(mat : Matrix[T]) -> Bool {
-  let zero = T::zero()
+  let zero = Semiring::zero()
   let mut prev_pivot_col = -1
   let mut found_zero_row = false
   for i in 0..<mat.rows {
@@ -301,7 +307,7 @@ pub fn[T : EuclideanDomain] Matrix::is_row_hnf(mat : Matrix[T]) -> Bool {
 pub fn[T : EuclideanDomain] Matrix::hnf_report(
   a : Matrix[T],
 ) -> HNFReport[T] raise {
-  let zero = T::zero()
+  let zero = Semiring::zero()
   let h = clone_matrix(a)
   let u : Matrix[T] = Matrix::identity(a.rows)
   let pivot_cols = []
@@ -445,15 +451,13 @@ pub fn Matrix::cholesky(
     maybe_l is Some(_),
     msg="Cholesky requires a symmetric positive definite matrix",
   )
-  match maybe_l {
-    Some(l) => l
-    None => Matrix::{ rows: 0, cols: 0, data: [] }
-  }
+  guard maybe_l is Some(l) else { Matrix::{ rows: 0, cols: 0, data: [] } }
+  l
 }
 
 ///|
 pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
-  let zero = T::zero()
+  let zero = Semiring::zero()
   for i in 0..<mat.rows {
     for j in 0..<mat.cols {
       if i != j && mat.data[i][j] != zero {
@@ -462,7 +466,7 @@ pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
     }
   }
 
-  let diag_len = min_int(mat.rows, mat.cols)
+  let diag_len = min(mat.rows, mat.cols)
   let mut seen_zero = false
   let mut prev : T? = None
   for i in 0..<diag_len {
@@ -481,7 +485,7 @@ pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
       None => ()
       Some(p) => {
         let (_, r) = EuclideanDomain::div_mod_euclid(d, p)
-        if !r.is_zero() {
+        if !Semiring::is_zero(r) {
           return false
         }
       }
@@ -495,12 +499,12 @@ pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
 pub fn[T : EuclideanDomain] Matrix::snf_report(
   a : Matrix[T],
 ) -> SNFReport[T] raise {
-  let zero = T::zero()
-  let one = T::one()
+  let zero = Semiring::zero()
+  let one = Semiring::one()
   let s = clone_matrix(a)
   let u : Matrix[T] = Matrix::identity(a.rows)
   let v : Matrix[T] = Matrix::identity(a.cols)
-  let limit = min_int(s.rows, s.cols)
+  let limit = min(s.rows, s.cols)
   let mut k = 0
 
   while k < limit {
@@ -560,7 +564,7 @@ pub fn[T : EuclideanDomain] Matrix::snf_report(
               s.data[i][j],
               s.data[k][k],
             )
-            if !r.is_zero() {
+            if !Semiring::is_zero(r) {
               witness = Some((i, j))
               break
             }

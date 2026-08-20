@@ -1,4 +1,4 @@
 ///|
 pub trait Field: Ring {
-  inv(self : Self) -> Self
+  fn inv(self : Self) -> Self
 }

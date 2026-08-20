@@ -45,19 +45,15 @@ pub fn[M : Default] Tracing::enter(tracing : Tracing[M]) -> Unit {
 
 ///|
 pub fn[M : Default] Tracing::discard(tracing : Tracing[M]) -> Unit {
-  match tracing.stack.pop() {
-    Some(parent) => tracing.msg = parent
-    None => tracing.msg = M::default()
-  }
+  tracing.msg = tracing.stack.pop().unwrap_or(M::default())
 }
 
 ///|
 pub fn[M] Tracing::leave(tracing : Tracing[M], combine : (M, M) -> M) -> Unit {
   let child = tracing.msg
-  match tracing.stack.pop() {
-    Some(parent) => tracing.msg = combine(parent, child)
-    None => tracing.msg = child
-  }
+  tracing.msg = tracing.stack
+    .pop()
+    .map_or(child, parent => combine(parent, child))
 }
 
 ///|
@@ -67,14 +63,14 @@ test "Tracing accumulates, scopes, and resets messages" {
   trace.enter()
   trace.add("b")
   trace.leave(fn(parent, child) { parent + "[" + child + "]" })
-  assert_eq(trace.snapshot(), "a[b]")
-  assert_eq(trace.take(), "a[b]")
-  assert_eq(trace.snapshot(), "")
+  @test.assert_eq(trace.snapshot(), "a[b]")
+  @test.assert_eq(trace.take(), "a[b]")
+  @test.assert_eq(trace.snapshot(), "")
   trace.add("x")
   trace.enter()
   trace.add("ignored")
   trace.discard()
-  assert_eq(trace.snapshot(), "x")
+  @test.assert_eq(trace.snapshot(), "x")
   trace.reset()
-  assert_eq(trace.snapshot(), "")
+  @test.assert_eq(trace.snapshot(), "")
 }

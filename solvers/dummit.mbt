@@ -22,7 +22,7 @@ pub struct QuinticSolvabilityReport {
 
 ///|
 fn format_bigrat_array(values : Array[@rational.BigRational]) -> String {
-  "[\{join(values.map(value => value.to_string()))}]"
+  "[\{join(values.map(value => Show::to_string(value)))}]"
 }
 
 ///|
@@ -184,12 +184,12 @@ pub fn is_quintic_pqrs_solvable(
 test {
   let report = check_quintic_ab_solvability(-5, 12)
   assert_true(report.solvable)
-  assert_eq(report.check_name, "is_quintic_ab_solvable")
-  assert_eq(format_bigrat_array(report.roots), "[40]")
+  @test.assert_eq(report.check_name, "is_quintic_ab_solvable")
+  @test.assert_eq(format_bigrat_array(report.roots), "[40]")
   let proof = report.msg.display(2)
   assert_true(proof.contains(": is_quintic_ab_solvable"))
   assert_true(proof.contains("[resolvent]: "))
   assert_true(proof.contains("[roots]: [40]"))
   assert_true(is_quintic_ab_solvable(-5, 12))
-  assert_eq(tracing.msg.display(2), proof)
+  @test.assert_eq(tracing.msg.display(2), proof)
 }

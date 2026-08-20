@@ -102,13 +102,14 @@ pub fn rational_root_candidates(
   // If a_0 == 0 then x = 0 is a root; keep descending to find more roots.
   let a_0 = coeffs[0]
   guard !a_0.is_zero() else {
-    let zero = @rational.new(0N, 1N).unwrap()
-    let cases = [zero]
-    if length > 2 {
-      for r in rational_root_candidates(drop_constant_term(coeffs)) {
-        cases.push(r)
-      }
-    }
+    let cases = [
+      rat_zero,
+      ..if length > 2 {
+        rational_root_candidates(drop_constant_term(coeffs))
+      } else {
+        []
+      },
+    ]
     cases.sort()
     cases.dedup()
     return cases
@@ -153,8 +154,8 @@ pub fn is_root(coeffs : Array[BigInt], r : @rational.BigRational) -> Bool {
 test "120x^4 - 166x^3 + x^2 + 74x - 24" {
   let coeffs = [120N, -166, 1, 74, -24].rev()
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  assert_eq(
-    "[\{join(roots.map(root => root.to_string()))}]",
+  @test.assert_eq(
+    "[\{join(roots.map(root => Show::to_string(root)))}]",
     "[-2/3, 1/2, 3/4, 4/5]",
   )
 }
@@ -163,12 +164,15 @@ test "120x^4 - 166x^3 + x^2 + 74x - 24" {
 test "x^3 + x^2 - 2x has roots -2, 0, 1" {
   let coeffs = [0N, -2, 1, 1]
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  assert_eq("[\{join(roots.map(root => root.to_string()))}]", "[-2, 0, 1]")
+  @test.assert_eq(
+    "[\{join(roots.map(root => Show::to_string(root)))}]",
+    "[-2, 0, 1]",
+  )
 }
 
 ///|
 test "Linear polynomial with zero constant term has root zero" {
   let coeffs = [0N, -2]
   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  assert_eq("[\{join(roots.map(root => root.to_string()))}]", "[0]")
+  @test.assert_eq("[\{join(roots.map(root => Show::to_string(root)))}]", "[0]")
 }

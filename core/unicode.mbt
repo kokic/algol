@@ -15,7 +15,7 @@ pub fn super_digit_char(c : Char) -> Char {
 
 ///|
 test {
-  assert_eq(super_digit_char('-'), SUPER_MINUS)
+  @test.assert_eq(super_digit_char('-'), SUPER_MINUS)
 }
 
 ///|
@@ -35,5 +35,8 @@ pub fn big_to_super_digits(n : BigInt) -> Array[Char] {
 
 ///|
 test {
-  assert_eq(String::from_array(big_to_super_digits(-31382)), "⁻³¹³⁸²")
+  @test.assert_eq(
+    String::from_array(big_to_super_digits(-31382)),
+    "⁻³¹³⁸²",
+  )
 }

@@ -66,5 +66,5 @@ test "Matrix generic multiplication works over BigRational" {
   let a : Matrix[@rational.BigRational] = Matrix::from_rows([[half, two]])
   let b : Matrix[@rational.BigRational] = Matrix::from_rows([[two], [three]])
   let expected : Matrix[@rational.BigRational] = Matrix::from_rows([[seven]])
-  assert_eq(a.mul(b), expected)
+  @test.assert_eq(a.mul(b), expected)
 }

@@ -10,10 +10,10 @@ test "Heuristic multivariate gcd finds common bivariate factor" {
   let g = (x + y) * (y + two)
   let d = f.gcd_multivariate(g)
 
-  assert_eq(d.terms.length(), 2)
-  assert_eq(d.coeff([1, 0]), rat_one)
-  assert_eq(d.coeff([0, 1]), rat_one)
-  assert_eq(d.coeff([0, 0]), rat_zero)
+  @test.assert_eq(d.terms.length(), 2)
+  @test.assert_eq(d.coeff([1, 0]), rat_one)
+  @test.assert_eq(d.coeff([0, 1]), rat_one)
+  @test.assert_eq(d.coeff([0, 0]), rat_zero)
 }
 
 ///|
@@ -24,7 +24,7 @@ test "Heuristic multivariate gcd falls back to one for coprime pair" {
   let g = Polynomial::from_term(vars, [1, 0], 1N) -
     Polynomial::from_term(vars, [0, 1], 1N)
   let d = f.gcd_multivariate(g)
-  assert_eq(d.unicodify(), "1")
+  @test.assert_eq(d.unicodify(), "1")
 }
 
 ///|
@@ -42,10 +42,10 @@ test "Heuristic multivariate gcd supports different variable orders" {
   let g = (x_b + y_b) * (x_b + two_b)
 
   let d = f.gcd_multivariate(g)
-  assert_eq(d.terms.length(), 2)
-  assert_eq(d.coeff([1, 0]), rat_one)
-  assert_eq(d.coeff([0, 1]), rat_one)
-  assert_eq(d.coeff([0, 0]), rat_zero)
+  @test.assert_eq(d.terms.length(), 2)
+  @test.assert_eq(d.coeff([1, 0]), rat_one)
+  @test.assert_eq(d.coeff([0, 1]), rat_one)
+  @test.assert_eq(d.coeff([0, 0]), rat_zero)
 }
 
 ///|
@@ -58,8 +58,8 @@ test "Heuristic multivariate gcd removes extraneous decoded monomial factor" {
   let g = y * common
   let d = f.gcd_multivariate(g)
 
-  assert_eq(d.terms.length(), 2)
-  assert_eq(d.coeff([1, 0]), rat_one)
-  assert_eq(d.coeff([0, 1]), rat_one)
-  assert_eq(d.coeff([0, 0]), rat_zero)
+  @test.assert_eq(d.terms.length(), 2)
+  @test.assert_eq(d.coeff([1, 0]), rat_one)
+  @test.assert_eq(d.coeff([0, 1]), rat_one)
+  @test.assert_eq(d.coeff([0, 0]), rat_zero)
 }

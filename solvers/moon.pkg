@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/test",
   "moonbitlang/x/rational",
   "kokic/algol/core",
   "kokic/algol/number",

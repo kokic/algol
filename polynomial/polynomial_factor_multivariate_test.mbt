@@ -40,10 +40,10 @@ test "Factor multivariate falls back to remainder for non-extractable factors" {
   let poly = x + y + one
 
   let (factors, remainder) = poly.factor_multivariate()
-  assert_eq(factors.length(), 0)
-  assert_eq(remainder.coeff([1, 0]), rat_one)
-  assert_eq(remainder.coeff([0, 1]), rat_one)
-  assert_eq(remainder.coeff([0, 0]), rat_one)
+  @test.assert_eq(factors.length(), 0)
+  @test.assert_eq(remainder.coeff([1, 0]), rat_one)
+  @test.assert_eq(remainder.coeff([0, 1]), rat_one)
+  @test.assert_eq(remainder.coeff([0, 0]), rat_one)
 }
 
 ///|
@@ -58,7 +58,7 @@ test "Factor multivariate works for univariate input" {
   let factor_strings = factors.map(f => f.unicodify())
   factor_strings.sort()
   debug_inspect(factor_strings, content="[\"x + 2\", \"x - 1\"]")
-  assert_eq(remainder.unicodify(), "1")
+  @test.assert_eq(remainder.unicodify(), "1")
 }
 
 ///|
@@ -75,9 +75,9 @@ test "Factor multivariate full iterates on remainder" {
   factor_strings.sort()
   debug_inspect(factor_strings, content="[\"x - 1\", \"y + 2\"]")
 
-  assert_eq(remainder.coeff([1, 0]), rat_one)
-  assert_eq(remainder.coeff([0, 1]), rat_one)
-  assert_eq(remainder.coeff([0, 0]), rat_one)
+  @test.assert_eq(remainder.coeff([1, 0]), rat_one)
+  @test.assert_eq(remainder.coeff([0, 1]), rat_one)
+  @test.assert_eq(remainder.coeff([0, 0]), rat_one)
 }
 
 ///|
@@ -98,9 +98,9 @@ test "Factor multivariate full report matches wrapper and contains trace" {
   wrapper_factor_strings.sort()
   @test.assert_eq(report_factor_strings, wrapper_factor_strings)
 
-  assert_eq(report.remainder.unicodify(), remainder.unicodify())
-  assert_eq(report.primitive_remainder.unicodify(), remainder.unicodify())
-  assert_eq(report.content, rat_one)
+  @test.assert_eq(report.remainder.unicodify(), remainder.unicodify())
+  @test.assert_eq(report.primitive_remainder.unicodify(), remainder.unicodify())
+  @test.assert_eq(report.content, rat_one)
   let original_q = (
       Polynomial::from_term(vars, [1, 0], rat_one) -
       Polynomial::from_constant(vars, rat_one)
@@ -119,7 +119,7 @@ test "Factor multivariate full report matches wrapper and contains trace" {
       Polynomial::from_constant(vars, rat_one)
     )
   let reconstructed = Polynomial::reconstruct_from_report(report)
-  assert_eq(
+  @test.assert_eq(
     report.is_reconstruction_valid,
     (reconstructed - original_q).terms.is_empty(),
   )
@@ -140,7 +140,7 @@ test "Factor multivariate full report extracts non-unit content" {
   let poly = six * (x - one) * (x - one) * (x + two)
 
   let report = poly.factor_multivariate_full_report()
-  assert_eq(report.content, @rational.new(6N, 1N).unwrap())
+  @test.assert_eq(report.content, @rational.new(6N, 1N).unwrap())
   let original_q = Polynomial::from_constant(
       vars,
       @rational.new(6N, 1N).unwrap(),
@@ -158,7 +158,7 @@ test "Factor multivariate full report extracts non-unit content" {
       Polynomial::from_constant(vars, @rational.new(2N, 1N).unwrap())
     )
   let reconstructed = Polynomial::reconstruct_from_report(report)
-  assert_eq(
+  @test.assert_eq(
     report.is_reconstruction_valid,
     (reconstructed - original_q).terms.is_empty(),
   )
@@ -166,8 +166,8 @@ test "Factor multivariate full report extracts non-unit content" {
   let factor_strings = report.factors.map(f => f.unicodify())
   factor_strings.sort()
   debug_inspect(factor_strings, content="[\"x + 2\", \"x - 1\"]")
-  assert_eq(report.primitive_remainder.unicodify(), "1")
-  assert_eq(report.remainder.unicodify(), "1")
+  @test.assert_eq(report.primitive_remainder.unicodify(), "1")
+  @test.assert_eq(report.remainder.unicodify(), "1")
 }
 
 ///|
@@ -178,11 +178,11 @@ test "Factor multivariate full report preserves negative content" {
   let poly = minus_two * x
 
   let report = poly.factor_multivariate_full_report()
-  assert_eq(report.content, @rational.new(-2N, 1N).unwrap())
+  @test.assert_eq(report.content, @rational.new(-2N, 1N).unwrap())
   assert_true(report.is_reconstruction_valid)
   let factor_strings = report.factors.map(f => f.unicodify())
   debug_inspect(factor_strings, content="[\"x\"]")
-  assert_eq(report.primitive_remainder.unicodify(), "1")
+  @test.assert_eq(report.primitive_remainder.unicodify(), "1")
 }
 
 ///|

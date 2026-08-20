@@ -3,8 +3,8 @@ name = "kokic/algol"
 version = "0.1.0"
 
 import {
-  "kokic/prime@0.1.4",
-  "moonbitlang/x@0.4.38",
+  "kokic/prime@0.1.8",
+  "moonbitlang/x@0.5.1",
 }
 
 readme = "README.md"

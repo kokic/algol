@@ -14,8 +14,8 @@ test "Univariate polynomial gcd over BigRat" {
     Polynomial::from_constant(vars, -rat_one)
   let (q, r) = g.div_rem(one_factor).unwrap()
   assert_true(r.terms.is_empty())
-  assert_eq(q.unicodify(), "1")
-  assert_eq(g.eval(rat_one), rat_zero)
+  @test.assert_eq(q.unicodify(), "1")
+  @test.assert_eq(g.eval(rat_one), rat_zero)
 }
 
 ///|
@@ -35,8 +35,8 @@ test "Square-free part removes repeated rational roots" {
   assert_true(r1.terms.is_empty())
   let (q2, r2) = q1.div_rem(minus_two_factor).unwrap()
   assert_true(r2.terms.is_empty())
-  assert_eq(q2.unicodify(), "1")
+  @test.assert_eq(q2.unicodify(), "1")
 
-  assert_eq(sf.eval(rat_one), rat_zero)
-  assert_eq(sf.eval(minus_two), rat_zero)
+  @test.assert_eq(sf.eval(rat_one), rat_zero)
+  @test.assert_eq(sf.eval(minus_two), rat_zero)
 }

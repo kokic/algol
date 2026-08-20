@@ -1,6 +1,6 @@
 ///|
 pub(open) trait ToUnicode {
-  unicodify(Self) -> String
+  fn unicodify(Self) -> String
 }
 
 ///|
@@ -9,19 +9,19 @@ pub fn unicodify_monomial(
   coeff : String,
   power : String,
 ) -> String {
-  guard !(coeff == "0") else { "0" }
-  guard !(power == "0") else { coeff }
-  guard !(power == "1") else { unicodify_monomial_case_power_one(term, coeff) }
+  guard coeff != "0" else { "0" }
+  guard power != "0" else { coeff }
+  guard power != "1" else { unicodify_monomial_case_power_one(term, coeff) }
 
   // for power > 1
   let sup = to_super_string(power)
-  guard !(coeff == "1") else { term + sup }
+  guard coeff != "1" else { term + sup }
   coeff + term + sup
 }
 
 ///|
 fn unicodify_monomial_case_power_one(term : String, coeff : String) -> String {
-  guard !(coeff == "1") else { term }
+  guard coeff != "1" else { term }
   coeff + term
 }
 
@@ -51,11 +51,11 @@ pub fn unicodify_univariate_polynomial(
 
 ///|
 test {
-  assert_eq(
+  @test.assert_eq(
     unicodify_univariate_polynomial([11, 2, -5, 89, 1]),
     "11x⁴ + 2x³ - 5x² + 89x + 1",
   )
-  assert_eq(
+  @test.assert_eq(
     unicodify_univariate_polynomial([-1, 2, -3, -5, 7], descent=false),
     "7x⁴ - 5x³ - 3x² + 2x - 1",
   )

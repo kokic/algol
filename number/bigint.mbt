@@ -46,32 +46,32 @@ pub fn random_range(
 }
 
 ///|
-pub impl Semiring for BigInt with zero() {
+pub impl Semiring for BigInt with fn zero() {
   0N
 }
 
 ///|
-pub impl Semiring for BigInt with one() {
+pub impl Semiring for BigInt with fn one() {
   1N
 }
 
 ///|
-pub impl Semiring for BigInt with is_zero(self) {
+pub impl Semiring for BigInt with fn is_zero(self) {
   self.is_zero()
 }
 
 ///|
-pub impl Ring for BigInt with neg(self : BigInt) -> BigInt {
+pub impl Ring for BigInt with fn neg(self : BigInt) -> BigInt {
   -self
 }
 
 ///|
-pub impl Ring for BigInt with sub(self : BigInt, other : BigInt) -> BigInt {
+pub impl Ring for BigInt with fn sub(self : BigInt, other : BigInt) -> BigInt {
   self - other
 }
 
 ///|
-pub impl EuclideanDomain for BigInt with abs(self : BigInt) -> BigInt {
+pub impl EuclideanDomain for BigInt with fn abs(self : BigInt) -> BigInt {
   if self < 0N {
     -self
   } else {
@@ -80,17 +80,20 @@ pub impl EuclideanDomain for BigInt with abs(self : BigInt) -> BigInt {
 }
 
 ///|
-pub impl EuclideanDomain for BigInt with signum(self : BigInt) -> Int {
+pub impl EuclideanDomain for BigInt with fn signum(self : BigInt) -> Int {
   signum(self)
 }
 
 ///|
-pub impl EuclideanDomain for BigInt with compare(self : BigInt, other : BigInt) -> Int {
+pub impl EuclideanDomain for BigInt with fn compare(
+  self : BigInt,
+  other : BigInt,
+) -> Int {
   self.compare(other)
 }
 
 ///|
-pub impl EuclideanDomain for BigInt with div_mod_euclid(
+pub impl EuclideanDomain for BigInt with fn div_mod_euclid(
   self : BigInt,
   divisor : BigInt,
 ) -> (BigInt, BigInt) {
@@ -108,7 +111,7 @@ pub impl EuclideanDomain for BigInt with div_mod_euclid(
 }
 
 ///|
-pub impl EuclideanDomain for BigInt with extended_gcd(a : BigInt, b : BigInt) -> (
+pub impl EuclideanDomain for BigInt with fn extended_gcd(a : BigInt, b : BigInt) -> (
   BigInt,
   BigInt,
   BigInt,
@@ -138,6 +141,6 @@ pub impl EuclideanDomain for BigInt with extended_gcd(a : BigInt, b : BigInt) ->
 }
 
 ///|
-pub impl ToUnicode for BigInt with unicodify(self) {
+pub impl ToUnicode for BigInt with fn unicodify(self) {
   self.to_string()
 }
