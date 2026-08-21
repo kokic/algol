@@ -16,17 +16,19 @@ pub fn unicodify_monomial(
   // for power > 1
   let sup = to_super_string(power)
   guard coeff != "1" else { term + sup }
+  guard coeff != "-1" else { "-" + term + sup }
   coeff + term + sup
 }
 
 ///|
 fn unicodify_monomial_case_power_one(term : String, coeff : String) -> String {
   guard coeff != "1" else { term }
+  guard coeff != "-1" else { "-" + term }
   coeff + term
 }
 
 ///|
-fn str_abs(number : String) -> StringView {
+pub fn str_abs(number : String) -> StringView {
   number.strip_prefix("-").unwrap_or(number)
 }
 
@@ -59,4 +61,14 @@ test {
     unicodify_univariate_polynomial([-1, 2, -3, -5, 7], descent=false),
     "7x⁴ - 5x³ - 3x² + 2x - 1",
   )
+}
+
+///|
+test {
+  @test.assert_eq(
+    unicodify_univariate_polynomial([-1, 0, 1]),
+    "-x² + 1",
+  )
+  @test.assert_eq(unicodify_monomial("x", "-1", "1"), "-x")
+  @test.assert_eq(unicodify_monomial("x", "-1", "3"), "-x³")
 }

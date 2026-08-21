@@ -10,21 +10,9 @@ pub fn generate_time_based_seed() -> Bytes {
 
 ///|
 pub fn uint64_array_to_bytes(values : Array[UInt64]) -> Bytes {
-  Bytes::makei(32, fn(i) {
-    let value_index = i / 8
-    let byte_index = i % 8
-    let value = values[value_index]
-    match byte_index {
-      // to_byte(): & 0xFFUL
-      0 => value.to_byte()
-      1 => (value >> 8).to_byte()
-      2 => (value >> 16).to_byte()
-      3 => (value >> 24).to_byte()
-      4 => (value >> 32).to_byte()
-      5 => (value >> 40).to_byte()
-      6 => (value >> 48).to_byte()
-      7 => (value >> 56).to_byte()
-      _ => b'\x00' // unreachable!
-    }
+  Bytes::makei(values.length() * 8, fn(i) {
+    let value = values[i / 8]
+    let shift = (i % 8) * 8
+    (value >> shift).to_byte()
   })
 }

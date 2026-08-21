@@ -7,21 +7,6 @@ pub using @number {
   trait ToUnicode,
   unicodify_monomial,
   unicodify_univariate_polynomial,
-}
-
-///|
-pub using @core {
-  min,
-  join,
-  join_list,
-  super_digit_char,
-  to_super_digits,
-  to_super_string,
-  big_to_super_digits,
-}
-
-///|
-pub using @number {
   signum,
   gcd,
   random,
@@ -41,6 +26,17 @@ pub using @number {
   rat_one,
   rat_two,
   rat_neg_one,
+}
+
+///|
+pub using @core {
+  min,
+  join,
+  join_list,
+  super_digit_char,
+  to_super_digits,
+  to_super_string,
+  big_to_super_digits,
 }
 
 ///|

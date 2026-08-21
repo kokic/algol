@@ -17,7 +17,7 @@ pub struct Polynomial[E] {
 impl[E : Neg] Neg for Polynomial[E] with fn neg(self) {
   Polynomial::{
     vars: self.vars,
-    terms: self.terms.map((_, v) => Term::{ exps: v.exps, coeff: -v.coeff }),
+    terms: self.terms.map((_, v) => Term::{ exps: v.exps.copy(), coeff: -v.coeff }),
   }
 }
 
@@ -75,7 +75,7 @@ pub fn[E : Semiring] Polynomial::from_term(
 ) -> Polynomial[E] raise {
   assert_exp_arity(vars, exps)
   let terms = @hashmap.HashMap([])
-  add_term_to_map(terms, exps, coeff)
+  add_term_to_map(terms, exps.copy(), coeff)
   Polynomial::{ vars, terms }
 }
 
@@ -248,7 +248,10 @@ fn bigint_to_bigrat_polynomial(
 ) -> Polynomial[@rational.BigRational] {
   let terms = @hashmap.HashMap([])
   for key, term in poly.terms {
-    terms[key] = Term::{ exps: term.exps, coeff: bigint_to_bigrat(term.coeff) }
+    terms[key] = Term::{
+      exps: term.exps.copy(),
+      coeff: bigint_to_bigrat(term.coeff),
+    }
   }
   Polynomial::{ vars: poly.vars, terms }
 }
@@ -330,7 +333,7 @@ fn scale_bigrat_polynomial(
 ) -> Polynomial[@rational.BigRational] {
   let terms = @hashmap.HashMap([])
   for _, term in poly.terms {
-    add_term_to_map(terms, term.exps, term.coeff * factor)
+    add_term_to_map(terms, term.exps.copy(), term.coeff * factor)
   }
   Polynomial::{ vars: poly.vars, terms }
 }
@@ -346,11 +349,7 @@ fn normalize_monic(
 
 ///|
 fn mul_bigint_by_nonnegative_int(value : BigInt, times : Int) -> BigInt {
-  let mut acc = 0N
-  for _ in 0..<times {
-    acc = acc + value
-  }
-  acc
+  value * BigInt::from_int(times)
 }
 
 ///|
@@ -1146,12 +1145,8 @@ fn unicodify_multivariate_monomial(
   let var_part = join(var_parts, separator="")
   guard !var_part.is_empty() else { coeff }
   guard coeff != "1" else { var_part }
+  guard coeff != "-1" else { "-" + var_part }
   coeff + var_part
-}
-
-///|
-fn str_abs(number : String) -> StringView {
-  number.strip_prefix("-").unwrap_or(number)
 }
 
 ///|

@@ -451,8 +451,7 @@ pub fn Matrix::cholesky(
     maybe_l is Some(_),
     msg="Cholesky requires a symmetric positive definite matrix",
   )
-  guard maybe_l is Some(l) else { Matrix::{ rows: 0, cols: 0, data: [] } }
-  l
+  maybe_l.unwrap()
 }
 
 ///|

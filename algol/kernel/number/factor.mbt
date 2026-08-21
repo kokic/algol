@@ -70,6 +70,8 @@ pub fn prime_factor_descent(n : BigInt) -> BigInt {
     let a = pollard_rho_brent(n)
     guard !@prime.is_prime(a) else { return a }
     let q = n / a
+    // q == 1 means pollard_rho_brent failed and returned n itself
+    guard q > 1 else { return n }
     guard !@prime.is_prime(q) else { return q }
     n = min(a, q)
   }
@@ -89,6 +91,12 @@ pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] {
   let factors = @hashmap.HashMap([])
   while n > 1 {
     let p = prime_factor_descent(n)
+    if p == n {
+      // n is prime, or Pollard's rho gave up on a composite n
+      guard @prime.is_prime(n) else { break }
+      factors[n] = factors.get(n).unwrap_or(0) + 1
+      break
+    }
     let count = factors.get(p).unwrap_or(0) + 1
     factors[p] = count
     n = n / p

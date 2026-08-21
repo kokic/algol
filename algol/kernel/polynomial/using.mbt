@@ -12,6 +12,7 @@ using @number {
   rational_root_candidates,
   is_root,
   gcd,
+  str_abs,
 }
 
 ///|

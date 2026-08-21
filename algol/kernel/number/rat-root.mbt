@@ -37,11 +37,12 @@ pub fn cauchy_bound(coeffs : Array[BigInt]) -> BigInt raise {
   assert_true(n >= 1, msg="polynomial degree [\{n}] must be at least 1")
   let a_n = coeffs[n]
   assert_true(a_n != 0, msg="leading coefficient [\{a_n}] must be non-zero")
+  let a_n_abs = @prime.abs(a_n)
   let mut max_ratio = 0N
-  for i in 0..<=n {
+  // ceil(|a_i| / |a_n|): floor division would make the bound too tight
+  for i in 0..<n {
     let a_i_abs = @prime.abs(coeffs[i])
-    let a_n_abs = @prime.abs(a_n)
-    let ratio = if a_i_abs == 0 { 0N } else { a_i_abs / a_n_abs }
+    let ratio = if a_i_abs == 0 { 0N } else { (a_i_abs + a_n_abs - 1) / a_n_abs }
     if ratio > max_ratio {
       max_ratio = ratio
     }
@@ -71,12 +72,9 @@ pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
     for d in divisors {
       for pow in powers {
         let candidate = d * pow
-        if candidate <= bound {
-          new_divisors.push(candidate)
-        }
-        // Note: since powers are increasing and d ≥ 1,
-        // once candidate > bound, later pow will be larger — but we can't break
-        // because d varies. So no inner break.
+        // powers are increasing, so once candidate > bound, later pows are too
+        guard candidate <= bound else { break }
+        new_divisors.push(candidate)
       }
     }
     divisors = new_divisors

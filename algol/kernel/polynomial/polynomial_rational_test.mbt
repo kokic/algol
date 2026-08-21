@@ -28,6 +28,14 @@ test "Find rational roots from univariate polynomial" {
 }
 
 ///|
+test "Unicodify renders coefficient -1 without the numeral" {
+  let vars = ["x"]
+  let poly = Polynomial::from_term(vars, [2], -1N) +
+    Polynomial::from_constant(vars, 1N)
+  @test.assert_eq(poly.unicodify(), "-x² + 1")
+}
+
+///|
 test "Factor by rational roots with multiplicity" {
   let vars = ["x"]
   let poly = Polynomial::from_term(vars, [3], 1N) -

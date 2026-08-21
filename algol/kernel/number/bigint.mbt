@@ -23,17 +23,16 @@ pub fn gcd(a : BigInt, b : BigInt) -> BigInt {
 
 ///|
 pub fn random(rand : @random.Rand, limit : BigInt) -> BigInt {
-  guard !(limit == 1) else { return 0 }
+  // limit <= 1 means the range [0, limit) is empty or degenerate
+  guard limit > 1 else { return 0 }
   let k = limit.bit_length()
   let two_pow_k = (1 : BigInt) << k
   let threshold = two_pow_k - two_pow_k % limit
-  while true {
-    let x = rand.bigint(k)
-    if x < threshold {
-      return x % limit
-    }
+  let mut x = rand.bigint(k)
+  while x >= threshold {
+    x = rand.bigint(k)
   }
-  0 // unreachable!
+  x % limit
 }
 
 ///|
