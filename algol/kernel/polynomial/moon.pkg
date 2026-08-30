@@ -3,7 +3,7 @@ import {
   "moonbitlang/core/test",
   "moonbitlang/x/rational",
   "kokic/prime",
-  "kokic/algol/core",
-  "kokic/algol/number",
-  "kokic/algol/trace",
+  "kokic/algol/kernel/core",
+  "kokic/algol/kernel/number",
+  "kokic/algol/kernel/trace",
 }

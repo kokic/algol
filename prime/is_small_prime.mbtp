@@ -1,0 +1,30 @@
+///|
+predicate small_prime_window_bounds(min_index : Int, max_index : Int) {
+  0 <= min_index &&
+  min_index <= max_index &&
+  max_index <= SMALL_PRIMES_LENGTH
+}
+
+///|
+predicate small_prime_loop_bounds(
+  i : Int,
+  min_index : Int,
+  max_index : Int
+) {
+  small_prime_window_bounds(min_index, max_index) &&
+  min_index <= i &&
+  i <= max_index
+}
+
+///|
+lemma small_prime_loop_index_safe(
+  i : Int,
+  min_index : Int,
+  max_index : Int
+) where {
+  proof_require: small_prime_loop_bounds(i, min_index, max_index),
+  proof_require: i < max_index,
+  proof_ensure: 0 <= i,
+  proof_ensure: i < SMALL_PRIMES_LENGTH,
+} {
+}

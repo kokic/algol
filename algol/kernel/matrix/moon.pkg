@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/test",
+  "kokic/algol/kernel/core",
+  "kokic/algol/kernel/number",
+  "kokic/algol/kernel/trace",
+}
+
+import {
+  "moonbitlang/x/rational",
+} for "test"
