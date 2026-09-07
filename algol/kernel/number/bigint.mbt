@@ -55,9 +55,9 @@ pub impl Semiring for BigInt with fn one() {
 }
 
 ///|
-pub impl Semiring for BigInt with fn is_zero(self) {
-  self.is_zero()
-}
+// pub impl Semiring for BigInt with fn is_zero(self) {
+//   self.is_zero()
+// }
 
 ///|
 pub impl Ring for BigInt with fn neg(self : BigInt) -> BigInt {

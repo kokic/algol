@@ -43,12 +43,12 @@ fn[E : Semiring] add_term_to_map(
   exps : Array[Int],
   coeff : E,
 ) -> Unit {
-  guard !coeff.is_zero() else { return }
+  guard !(coeff == Semiring::zero()) else { return }
   let key = monomial_key(exps)
   match terms.get(key) {
     Some(term) => {
       let new_coeff = Add::add(term.coeff, coeff)
-      if new_coeff.is_zero() {
+      if new_coeff == Semiring::zero() {
         terms.remove(key)
       } else {
         terms[key] = Term::{ exps: term.exps, coeff: new_coeff, }
@@ -194,9 +194,9 @@ pub fn[E : Semiring] unsafe_polynomial_mul(
 ) -> Polynomial[E] {
   let terms = @hashmap.HashMap([])
   for _, term_a in a.terms {
-    guard !term_a.coeff.is_zero() else { continue }
+    guard !(term_a.coeff == Semiring::zero()) else { continue }
     for _, term_b in b.terms {
-      guard !term_b.coeff.is_zero() else { continue }
+      guard !(term_b.coeff == Semiring::zero()) else { continue }
       let exps = Array::makei(a.vars.length(), fn(i) {
         term_a.exps[i] + term_b.exps[i]
       })

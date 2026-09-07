@@ -20,12 +20,12 @@ pub impl Semiring for @rational.BigRational with fn one() -> @rational.BigRation
   rat_one
 }
 
-///|
-pub impl Semiring for @rational.BigRational with fn is_zero(
-  self : @rational.BigRational,
-) -> Bool {
-  self == rat_zero
-}
+// ///|
+// pub impl Semiring for @rational.BigRational with fn is_zero(
+//   self : @rational.BigRational,
+// ) -> Bool {
+//   self == rat_zero
+// }
 
 ///|
 pub impl Ring for @rational.BigRational with fn neg(

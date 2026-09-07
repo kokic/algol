@@ -218,7 +218,7 @@ fn[T : Ring] row_add_multiple(
   source : Int,
   scalar : T,
 ) -> Unit {
-  guard !Semiring::is_zero(scalar) else { return }
+  guard !(scalar == Semiring::zero()) else { return }
   for k in 0..<mat.cols {
     mat.data[target][k] = mat.data[target][k] + scalar * mat.data[source][k]
   }
@@ -231,7 +231,7 @@ fn[T : Ring] col_add_multiple(
   source : Int,
   scalar : T,
 ) -> Unit {
-  guard !Semiring::is_zero(scalar) else { return }
+  guard !(scalar == Semiring::zero()) else { return }
   for r in 0..<mat.rows {
     mat.data[r][target] = mat.data[r][target] + scalar * mat.data[r][source]
   }
@@ -246,10 +246,10 @@ fn[T : Ring] row_negate(mat : Matrix[T], row : Int) -> Unit {
 
 ///|
 fn[T : EuclideanDomain] exact_div(a : T, b : T) -> T raise {
-  assert_true(!Semiring::is_zero(b), msg="division by zero in exact_div")
+  assert_true(!(b == Semiring::zero()), msg="division by zero in exact_div")
   let (q, r) = EuclideanDomain::div_mod_euclid(a, b)
   assert_true(
-    Semiring::is_zero(r),
+    r == Semiring::zero(),
     msg="non-exact division in Euclidean-domain elimination",
   )
   q
@@ -490,7 +490,7 @@ pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
       None => ()
       Some(p) => {
         let (_, r) = EuclideanDomain::div_mod_euclid(d, p)
-        if !Semiring::is_zero(r) {
+        if !(r == Semiring::zero()) {
           return false
         }
       }
@@ -569,7 +569,7 @@ pub fn[T : EuclideanDomain] Matrix::snf_report(
               s.data[i][j],
               s.data[k][k],
             )
-            if !Semiring::is_zero(r) {
+            if !(r == Semiring::zero()) {
               witness = Some((i, j))
               break
             }
