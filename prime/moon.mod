@@ -4,7 +4,7 @@ version = "0.1.9"
 
 readme = "README.md"
 
-repository = "https://github.com/kokic/prime"
+repository = "https://github.com/kokic/algol/tree/main/prime"
 
 license = "Apache-2.0"
 
