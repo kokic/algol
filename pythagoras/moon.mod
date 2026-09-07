@@ -1,6 +1,10 @@
 name = "kokic/pythagoras"
 
-version = "0.1.9"
+version = "0.1.0"
+
+import {
+  "kokic/prime@0.2.0",
+}
 
 readme = "README.md"
 
@@ -10,4 +14,4 @@ license = "Apache-2.0"
 
 keywords = [ ]
 
-description = ""
+description = "All the tools you need for integers and rational numbers."
