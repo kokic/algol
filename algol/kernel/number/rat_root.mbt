@@ -42,7 +42,11 @@ pub fn cauchy_bound(coeffs : Array[BigInt]) -> BigInt raise {
   // ceil(|a_i| / |a_n|): floor division would make the bound too tight
   for i in 0..<n {
     let a_i_abs = @prime.abs(coeffs[i])
-    let ratio = if a_i_abs == 0 { 0N } else { (a_i_abs + a_n_abs - 1) / a_n_abs }
+    let ratio = if a_i_abs == 0 {
+      0N
+    } else {
+      (a_i_abs + a_n_abs - 1) / a_n_abs
+    }
     if ratio > max_ratio {
       max_ratio = ratio
     }
@@ -117,7 +121,7 @@ pub fn rational_root_candidates(
   let ps = generate_divisors(@prime.abs(a_0))
   let qs = generate_divisors(@prime.abs(a_n))
   // Should be replaced with @hashset.HashSet in the future
-  let cases : Array[@rational.BigRational] = Array::new(
+  let cases : Array[@rational.BigRational] = Array(
     capacity=2 * ps.length() * qs.length(),
   )
   for p in ps {
