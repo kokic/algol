@@ -1,7 +1,8 @@
 ///|
 test "MatrixZ snf report diagonalizes full-rank square matrix" {
   let a : MatrixZ = Matrix::from_rows([[4N, 6N], [3N, 9N]])
-  let report = a.snf_report()
+  let traced = a.snf_report()
+  let report = traced.value
 
   assert_true(report.is_verified)
   assert_true(report.snf.is_snf())
@@ -11,13 +12,14 @@ test "MatrixZ snf report diagonalizes full-rank square matrix" {
     report.left_unimodular.mul(report.original).mul(report.right_unimodular),
     report.snf,
   )
-  assert_true(report.trace.display(2).contains(": snf_report"))
+  assert_true(traced.trace.display().contains(": snf_report"))
 }
 
 ///|
 test "MatrixZ snf report handles rank-deficient rectangular matrix" {
   let a : MatrixZ = Matrix::from_rows([[2N, 4N, 6N], [4N, 8N, 12N]])
-  let report = a.snf_report()
+  let traced = a.snf_report()
+  let report = traced.value
 
   assert_true(report.is_verified)
   assert_true(report.snf.is_snf())
@@ -28,7 +30,8 @@ test "MatrixZ snf report handles rank-deficient rectangular matrix" {
 ///|
 test "MatrixZ snf report handles all-zero matrix" {
   let a : MatrixZ = Matrix::from_rows([[0N, 0N], [0N, 0N]])
-  let report = a.snf_report()
+  let traced = a.snf_report()
+  let report = traced.value
 
   assert_true(report.is_verified)
   assert_true(report.snf.is_snf())

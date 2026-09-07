@@ -40,20 +40,14 @@ pub using @core {
 }
 
 ///|
-pub using @trace {
-  type Message,
+pub using @writer {
   type Trace,
-  tracing,
-  group,
+  type TraceValue,
+  type Writer,
+  sequence,
+  text,
+  field,
   step,
-  trace_clear,
-  trace_text,
-  trace_label,
-  trace_step,
-  trace_enter_step,
-  trace_leave_step,
-  trace_discard_step,
-  trace_render,
 }
 
 ///|

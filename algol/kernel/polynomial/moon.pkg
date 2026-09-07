@@ -5,5 +5,5 @@ import {
   "kokic/prime",
   "kokic/algol/kernel/core",
   "kokic/algol/kernel/number",
-  "kokic/algol/kernel/trace",
+  "kokic/algol/kernel/writer",
 }

@@ -17,7 +17,10 @@ pub struct Polynomial[E] {
 impl[E : Neg] Neg for Polynomial[E] with fn neg(self) {
   Polynomial::{
     vars: self.vars,
-    terms: self.terms.map((_, v) => Term::{ exps: v.exps.copy(), coeff: -v.coeff }),
+    terms: self.terms.map((_, v) => Term::{
+      exps: v.exps.copy(),
+      coeff: -v.coeff,
+    }),
   }
 }
 
@@ -48,16 +51,16 @@ fn[E : Semiring] add_term_to_map(
       if new_coeff.is_zero() {
         terms.remove(key)
       } else {
-        terms[key] = Term::{ exps: term.exps, coeff: new_coeff }
+        terms[key] = Term::{ exps: term.exps, coeff: new_coeff, }
       }
     }
-    None => terms[key] = Term::{ exps, coeff }
+    None => terms[key] = Term::{ exps, coeff, }
   }
 }
 
 ///|
 pub fn[E] Polynomial::zero(vars : Array[String]) -> Polynomial[E] {
-  Polynomial::{ vars, terms: @hashmap.HashMap([]) }
+  Polynomial::{ vars, terms: @hashmap.HashMap([]), }
 }
 
 ///|
@@ -76,7 +79,7 @@ pub fn[E : Semiring] Polynomial::from_term(
   assert_exp_arity(vars, exps)
   let terms = @hashmap.HashMap([])
   add_term_to_map(terms, exps.copy(), coeff)
-  Polynomial::{ vars, terms }
+  Polynomial::{ vars, terms, }
 }
 
 ///|
@@ -112,7 +115,7 @@ fn[E : Semiring] unsafe_polynomial_add(
   for _, term in b.terms {
     add_term_to_map(terms, term.exps, term.coeff)
   }
-  Polynomial::{ vars: a.vars, terms }
+  Polynomial::{ vars: a.vars, terms, }
 }
 
 ///|
@@ -141,7 +144,7 @@ fn[E : Semiring] align_to_vars(
     }
     add_term_to_map(terms, exps, term.coeff)
   }
-  Polynomial::{ vars: new_vars, terms }
+  Polynomial::{ vars: new_vars, terms, }
 }
 
 ///|
@@ -201,7 +204,7 @@ pub fn[E : Semiring] unsafe_polynomial_mul(
       add_term_to_map(terms, exps, coeff)
     }
   }
-  Polynomial::{ vars: a.vars, terms }
+  Polynomial::{ vars: a.vars, terms, }
 }
 
 ///|
@@ -253,7 +256,7 @@ fn bigint_to_bigrat_polynomial(
       coeff: bigint_to_bigrat(term.coeff),
     }
   }
-  Polynomial::{ vars: poly.vars, terms }
+  Polynomial::{ vars: poly.vars, terms, }
 }
 
 ///|
@@ -335,7 +338,7 @@ fn scale_bigrat_polynomial(
   for _, term in poly.terms {
     add_term_to_map(terms, term.exps.copy(), term.coeff * factor)
   }
-  Polynomial::{ vars: poly.vars, terms }
+  Polynomial::{ vars: poly.vars, terms, }
 }
 
 ///|
@@ -365,7 +368,7 @@ fn derivative_univariate_bigint(
     let coeff = mul_bigint_by_nonnegative_int(term.coeff, exp)
     add_term_to_map(terms, [exp - 1], coeff)
   }
-  Polynomial::{ vars: poly.vars, terms }
+  Polynomial::{ vars: poly.vars, terms, }
 }
 
 ///|
@@ -478,7 +481,7 @@ fn kronecker_embed_univariate(
     let encoded_exp = encode_kronecker_exps(term.exps, weights)
     add_term_to_map(terms, [encoded_exp], bigint_to_bigrat(term.coeff))
   }
-  Polynomial::{ vars: ["_k"], terms }
+  Polynomial::{ vars: ["_k"], terms, }
 }
 
 ///|
@@ -496,7 +499,7 @@ fn kronecker_decode_univariate(
       None => return None
     }
   }
-  Some(Polynomial::{ vars, terms })
+  Some(Polynomial::{ vars, terms, })
 }
 
 ///|
@@ -538,7 +541,7 @@ fn divide_bigrat_polynomial_by_monomial(
     let new_exps = Array::makei(term.exps.length(), i => term.exps[i] - exps[i])
     add_term_to_map(terms, new_exps, term.coeff)
   }
-  Some(Polynomial::{ vars: poly.vars, terms })
+  Some(Polynomial::{ vars: poly.vars, terms, })
 }
 
 ///|
@@ -647,7 +650,7 @@ fn derivative_multivariate_bigint(
     let coeff = mul_bigint_by_nonnegative_int(term.coeff, exp)
     add_term_to_map(terms, exps, coeff)
   }
-  Polynomial::{ vars: poly.vars, terms }
+  Polynomial::{ vars: poly.vars, terms, }
 }
 
 ///|
@@ -768,7 +771,7 @@ fn try_bigrat_to_bigint_polynomial(
     guard term.coeff.is_integer() else { return None }
     add_term_to_map(terms, term.exps, term.coeff.trunc())
   }
-  Some(Polynomial::{ vars: poly.vars, terms })
+  Some(Polynomial::{ vars: poly.vars, terms, })
 }
 
 ///|
@@ -806,7 +809,7 @@ fn divide_bigint_polynomial_by_scalar(
     )
     add_term_to_map(terms, term.exps, term.coeff / scalar)
   }
-  Polynomial::{ vars: poly.vars, terms }
+  Polynomial::{ vars: poly.vars, terms, }
 }
 
 ///|
@@ -862,7 +865,6 @@ pub struct FactorMultivariateFullReport {
   rounds : Int
   stop_reason : String
   is_reconstruction_valid : Bool
-  trace : Message
 }
 
 ///|
@@ -900,27 +902,32 @@ pub fn Polynomial::reconstruct_from_report(
 ///|
 pub fn Polynomial::factor_multivariate_full_report(
   poly : Polynomial[BigInt],
-) -> FactorMultivariateFullReport raise {
+) -> Writer[FactorMultivariateFullReport] raise {
   guard !poly.terms.is_empty() else {
     let remainder = bigint_to_bigrat_polynomial(poly)
-    let trace = step("factor_multivariate_full_report", [
-      label("content", "0"),
-      label("rounds", "0"),
-      label("stop_reason", "zero_polynomial"),
-      label("factors", "[]"),
-      label("primitive_remainder", remainder.unicodify()),
-      label("remainder", remainder.unicodify()),
-    ])
-    return FactorMultivariateFullReport::{
-      content: rat_zero,
-      factors: [],
-      primitive_remainder: remainder,
-      remainder,
-      rounds: 0,
-      stop_reason: "zero_polynomial",
-      is_reconstruction_valid: true,
+    let trace = step(
+      "factor_multivariate_full_report",
+      sequence([
+        field("content", TraceValue::string("0")),
+        field("rounds", TraceValue::integer(0)),
+        field("stop_reason", TraceValue::string("zero_polynomial")),
+        field("factors", TraceValue::string("[]")),
+        field("primitive_remainder", TraceValue::string(remainder.unicodify())),
+        field("remainder", TraceValue::string(remainder.unicodify())),
+      ]),
+    )
+    return Writer::new(
+      FactorMultivariateFullReport::{
+        content: rat_zero,
+        factors: [],
+        primitive_remainder: remainder,
+        remainder,
+        rounds: 0,
+        stop_reason: "zero_polynomial",
+        is_reconstruction_valid: true,
+      },
       trace,
-    }
+    )
   }
 
   let content_bigint = polynomial_signed_content_bigint(poly)
@@ -947,10 +954,18 @@ pub fn Polynomial::factor_multivariate_full_report(
         let (step_factors, step_remainder) = step_input.factor_multivariate()
         rounds = rounds + 1
         round_messages.push(
-          step("round \{rounds}", [
-            label("factors", "[\{join(step_factors.map(f => f.unicodify()))}]"),
-            label("remainder", step_remainder.unicodify()),
-          ]),
+          step(
+            "round \{rounds}",
+            sequence([
+              field(
+                "factors",
+                TraceValue::string(
+                  "[\{join(step_factors.map(f => f.unicodify()))}]",
+                ),
+              ),
+              field("remainder", TraceValue::string(step_remainder.unicodify())),
+            ]),
+          ),
         )
 
         if step_factors.is_empty() {
@@ -966,15 +981,20 @@ pub fn Polynomial::factor_multivariate_full_report(
     }
   }
 
-  let trace_data = [
-    label("content", ToUnicode::unicodify(content)),
-    label("rounds", "\{rounds}"),
-    label("stop_reason", stop_reason),
-    label("factors", "[\{join(factors.map(f => f.unicodify()))}]"),
-    label("primitive_remainder", remainder.unicodify()),
-    label("remainder", remainder.unicodify()),
-    ..round_messages,
-  ]
+  let trace_data = sequence(
+    [
+      field("content", TraceValue::string(ToUnicode::unicodify(content))),
+      field("rounds", TraceValue::integer(rounds)),
+      field("stop_reason", TraceValue::string(stop_reason)),
+      field(
+        "factors",
+        TraceValue::string("[\{join(factors.map(f => f.unicodify()))}]"),
+      ),
+      field("primitive_remainder", TraceValue::string(remainder.unicodify())),
+      field("remainder", TraceValue::string(remainder.unicodify())),
+      ..round_messages,
+    ],
+  )
   let trace = step("factor_multivariate_full_report", trace_data)
   let reconstructed = reconstruct_from_factor_multivariate_full_report_parts(
     content, factors, remainder,
@@ -982,16 +1002,18 @@ pub fn Polynomial::factor_multivariate_full_report(
   let original = bigint_to_bigrat_polynomial(poly)
   let is_reconstruction_valid = polynomial_equal_bigrat(reconstructed, original)
 
-  FactorMultivariateFullReport::{
-    content,
-    factors,
-    primitive_remainder: remainder,
-    remainder,
-    rounds,
-    stop_reason,
-    is_reconstruction_valid,
+  Writer::new(
+    FactorMultivariateFullReport::{
+      content,
+      factors,
+      primitive_remainder: remainder,
+      remainder,
+      rounds,
+      stop_reason,
+      is_reconstruction_valid,
+    },
     trace,
-  }
+  )
 }
 
 ///|
@@ -1001,7 +1023,7 @@ pub fn Polynomial::factor_multivariate_full(
   Array[Polynomial[@rational.BigRational]],
   Polynomial[@rational.BigRational],
 ) raise {
-  let report = poly.factor_multivariate_full_report()
+  let report = poly.factor_multivariate_full_report().value
   (report.factors, report.remainder)
 }
 
@@ -1034,7 +1056,7 @@ fn[E] clone_terms(
 ) -> @hashmap.HashMap[String, Term[E]] {
   let copy = @hashmap.HashMap([])
   for key, term in terms {
-    copy[key] = Term::{ exps: term.exps, coeff: term.coeff }
+    copy[key] = Term::{ exps: term.exps, coeff: term.coeff, }
   }
   copy
 }

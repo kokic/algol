@@ -1,20 +1,22 @@
 ///|
 test "MatrixZ hnf report verifies square full-rank input" {
   let a : MatrixZ = Matrix::from_rows([[2N, 4N], [6N, 8N]])
-  let report = a.hnf_report()
+  let traced = a.hnf_report()
+  let report = traced.value
 
   assert_true(report.is_verified)
   assert_true(report.hnf.is_row_hnf())
   @test.assert_eq(report.pivot_cols, [0, 1])
   @test.assert_eq(report.hnf, Matrix::from_rows([[2N, 0N], [0N, 4N]]))
   @test.assert_eq(report.left_unimodular.mul(report.original), report.hnf)
-  assert_true(report.trace.display(2).contains(": hnf_report"))
+  assert_true(traced.trace.display().contains(": hnf_report"))
 }
 
 ///|
 test "MatrixZ hnf report handles rank-deficient rectangular matrix" {
   let a : MatrixZ = Matrix::from_rows([[1N, 2N, 3N], [2N, 4N, 6N]])
-  let report = a.hnf_report()
+  let traced = a.hnf_report()
+  let report = traced.value
 
   assert_true(report.is_verified)
   @test.assert_eq(report.pivot_cols, [0])
@@ -25,7 +27,8 @@ test "MatrixZ hnf report handles rank-deficient rectangular matrix" {
 ///|
 test "MatrixZ hnf report handles all-zero matrix" {
   let a : MatrixZ = Matrix::from_rows([[0N, 0N, 0N], [0N, 0N, 0N]])
-  let report = a.hnf_report()
+  let traced = a.hnf_report()
+  let report = traced.value
 
   assert_true(report.is_verified)
   @test.assert_eq(report.pivot_cols, [])

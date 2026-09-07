@@ -16,4 +16,4 @@ using @number {
 }
 
 ///|
-using @trace {type Message, label, step}
+using @writer {type TraceValue, type Writer, field, sequence, step}

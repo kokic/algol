@@ -43,7 +43,6 @@ pub struct HNFReport[T] {
   left_unimodular : Matrix[T]
   pivot_cols : Array[Int]
   is_verified : Bool
-  trace : Message
 } derive(Debug)
 
 ///|
@@ -61,7 +60,6 @@ pub struct SNFReport[T] {
   diagonal : Array[T]
   rank : Int
   is_verified : Bool
-  trace : Message
 } derive(Debug)
 
 ///|
@@ -73,7 +71,7 @@ pub type SNFReportZ = SNFReport[BigInt]
 ///|
 pub fn[T] Matrix::from_rows(rows : Array[Array[T]]) -> Matrix[T] raise {
   let row_count = rows.length()
-  guard row_count > 0 else { return Matrix::{ rows: 0, cols: 0, data: [] } }
+  guard row_count > 0 else { return Matrix::{ rows: 0, cols: 0, data: [], } }
   let col_count = rows[0].length()
   for i in 1..<row_count {
     assert_true(
@@ -84,13 +82,13 @@ pub fn[T] Matrix::from_rows(rows : Array[Array[T]]) -> Matrix[T] raise {
   let data = Array::makei(row_count, i => {
     Array::makei(col_count, j => rows[i][j])
   })
-  Matrix::{ rows: row_count, cols: col_count, data }
+  Matrix::{ rows: row_count, cols: col_count, data, }
 }
 
 ///|
 pub fn[T] Matrix::transpose(a : Matrix[T]) -> Matrix[T] {
   let data = Array::makei(a.cols, j => Array::makei(a.rows, i => a.data[i][j]))
-  Matrix::{ rows: a.cols, cols: a.rows, data }
+  Matrix::{ rows: a.cols, cols: a.rows, data, }
 }
 
 ///|
@@ -99,7 +97,7 @@ pub fn[T : Semiring] Matrix::identity(n : Int) -> Matrix[T] raise {
   let data = Array::makei(n, i => {
     Array::makei(n, j => if i == j { T::one() } else { T::zero() })
   })
-  Matrix::{ rows: n, cols: n, data }
+  Matrix::{ rows: n, cols: n, data, }
 }
 
 ///|
@@ -111,7 +109,7 @@ pub fn[T : Add] Matrix::add(a : Matrix[T], b : Matrix[T]) -> Matrix[T] raise {
   let data = Array::makei(a.rows, i => {
     Array::makei(a.cols, j => a.data[i][j] + b.data[i][j])
   })
-  Matrix::{ rows: a.rows, cols: a.cols, data }
+  Matrix::{ rows: a.rows, cols: a.cols, data, }
 }
 
 ///|
@@ -132,7 +130,7 @@ pub fn[T : Semiring] Matrix::mul(
       acc
     })
   })
-  Matrix::{ rows: a.rows, cols: b.cols, data }
+  Matrix::{ rows: a.rows, cols: b.cols, data, }
 }
 
 ///|
@@ -306,7 +304,7 @@ pub fn[T : EuclideanDomain] Matrix::is_row_hnf(mat : Matrix[T]) -> Bool {
 ///|
 pub fn[T : EuclideanDomain] Matrix::hnf_report(
   a : Matrix[T],
-) -> HNFReport[T] raise {
+) -> Writer[HNFReport[T]] raise {
   let zero = Semiring::zero()
   let h = clone_matrix(a)
   let u : Matrix[T] = Matrix::identity(a.rows)
@@ -364,24 +362,32 @@ pub fn[T : EuclideanDomain] Matrix::hnf_report(
 
   let product = u.mul(a)
   let is_verified = matrix_equal(product, h) && h.is_row_hnf()
-  let trace = step("hnf_report", [
-    label("shape", "\{a.rows}x\{a.cols}"),
-    label("pivot_cols", "[\{join(pivot_cols.map(col => col.to_string()))}]"),
-    label("is_verified", "\{is_verified}"),
-  ])
-  HNFReport::{
-    original: a,
-    hnf: h,
-    left_unimodular: u,
-    pivot_cols,
-    is_verified,
+  let trace = step(
+    "hnf_report",
+    sequence([
+      field("shape", TraceValue::string("\{a.rows}x\{a.cols}")),
+      field(
+        "pivot_cols",
+        TraceValue::string("[\{join(pivot_cols.map(col => col.to_string()))}]"),
+      ),
+      field("is_verified", TraceValue::boolean(is_verified)),
+    ]),
+  )
+  Writer::new(
+    HNFReport::{
+      original: a,
+      hnf: h,
+      left_unimodular: u,
+      pivot_cols,
+      is_verified,
+    },
     trace,
-  }
+  )
 }
 
 ///|
 pub fn[T : EuclideanDomain] Matrix::hnf(a : Matrix[T]) -> Matrix[T] raise {
-  a.hnf_report().hnf
+  a.hnf_report().value.hnf
 }
 
 ///|
@@ -428,7 +434,7 @@ fn cholesky_lower_double(a : Matrix[Double], eps : Double) -> Matrix[Double]? {
       }
     }
   }
-  Some(Matrix::{ rows: n, cols: n, data: l })
+  Some(Matrix::{ rows: n, cols: n, data: l, })
 }
 
 ///|
@@ -497,7 +503,7 @@ pub fn[T : EuclideanDomain] Matrix::is_snf(mat : Matrix[T]) -> Bool {
 ///|
 pub fn[T : EuclideanDomain] Matrix::snf_report(
   a : Matrix[T],
-) -> SNFReport[T] raise {
+) -> Writer[SNFReport[T]] raise {
   let zero = Semiring::zero()
   let one = Semiring::one()
   let s = clone_matrix(a)
@@ -608,24 +614,29 @@ pub fn[T : EuclideanDomain] Matrix::snf_report(
   let rank = diagonal.length()
   let product = u.mul(a).mul(v)
   let is_verified = matrix_equal(product, s) && s.is_snf()
-  let trace = step("snf_report", [
-    label("shape", "\{a.rows}x\{a.cols}"),
-    label("rank", "\{rank}"),
-    label("is_verified", "\{is_verified}"),
-  ])
-  SNFReport::{
-    original: a,
-    snf: s,
-    left_unimodular: u,
-    right_unimodular: v,
-    diagonal,
-    rank,
-    is_verified,
+  let trace = step(
+    "snf_report",
+    sequence([
+      field("shape", TraceValue::string("\{a.rows}x\{a.cols}")),
+      field("rank", TraceValue::integer(rank)),
+      field("is_verified", TraceValue::boolean(is_verified)),
+    ]),
+  )
+  Writer::new(
+    SNFReport::{
+      original: a,
+      snf: s,
+      left_unimodular: u,
+      right_unimodular: v,
+      diagonal,
+      rank,
+      is_verified,
+    },
     trace,
-  }
+  )
 }
 
 ///|
 pub fn[T : EuclideanDomain] Matrix::snf(a : Matrix[T]) -> Matrix[T] raise {
-  a.snf_report().snf
+  a.snf_report().value.snf
 }

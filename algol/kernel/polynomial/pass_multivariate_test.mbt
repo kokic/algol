@@ -89,7 +89,8 @@ test "Factor multivariate full report matches wrapper and contains trace" {
   let two = Polynomial::from_constant(vars, 2N)
 
   let poly = (x - one) * (x - one) * (y + two) * (x + y + one)
-  let report = poly.factor_multivariate_full_report()
+  let traced = poly.factor_multivariate_full_report()
+  let report = traced.value
   let (factors, remainder) = poly.factor_multivariate_full()
 
   let report_factor_strings = report.factors.map(f => f.unicodify())
@@ -124,7 +125,7 @@ test "Factor multivariate full report matches wrapper and contains trace" {
     (reconstructed - original_q).terms.is_empty(),
   )
   assert_true(report.rounds >= 1)
-  let trace = report.trace.display(2)
+  let trace = traced.trace.display()
   assert_true(trace.contains(": factor_multivariate_full_report"))
   assert_true(trace.contains("[content]: 1"))
   assert_true(trace.contains("[stop_reason]:"))
@@ -139,7 +140,8 @@ test "Factor multivariate full report extracts non-unit content" {
   let six = Polynomial::from_constant(vars, 6N)
   let poly = six * (x - one) * (x - one) * (x + two)
 
-  let report = poly.factor_multivariate_full_report()
+  let traced = poly.factor_multivariate_full_report()
+  let report = traced.value
   @test.assert_eq(report.content, @rational.new(6N, 1N).unwrap())
   let original_q = Polynomial::from_constant(
       vars,
@@ -177,7 +179,8 @@ test "Factor multivariate full report preserves negative content" {
   let minus_two = Polynomial::from_constant(vars, -2N)
   let poly = minus_two * x
 
-  let report = poly.factor_multivariate_full_report()
+  let traced = poly.factor_multivariate_full_report()
+  let report = traced.value
   @test.assert_eq(report.content, @rational.new(-2N, 1N).unwrap())
   assert_true(report.is_reconstruction_valid)
   let factor_strings = report.factors.map(f => f.unicodify())
@@ -194,7 +197,8 @@ test "Reconstruct from multivariate factor report" {
   let three = Polynomial::from_constant(vars, 3N)
   let poly = three * (x - one) * (x + y + one)
 
-  let report = poly.factor_multivariate_full_report()
+  let traced = poly.factor_multivariate_full_report()
+  let report = traced.value
   assert_true(report.is_reconstruction_valid)
   let reconstructed = Polynomial::reconstruct_from_report(report)
   let original = Polynomial::from_term(
