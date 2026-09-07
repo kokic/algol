@@ -12,7 +12,7 @@ pub fn generate_time_based_seed() -> Bytes {
 pub fn uint64_array_to_bytes(values : Array[UInt64]) -> Bytes {
   Bytes::makei(values.length() * 8, fn(i) {
     let value = values[i / 8]
-    let shift = (i % 8) * 8
+    let shift = i % 8 * 8
     (value >> shift).to_byte()
   })
 }

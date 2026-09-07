@@ -11,7 +11,7 @@ fn prime_bench_case(
   n : BigInt,
   expected : Bool,
 ) -> PrimeBenchCase {
-  { name, n, expected }
+  { name, n, expected, }
 }
 
 ///|

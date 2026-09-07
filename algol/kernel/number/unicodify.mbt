@@ -65,10 +65,7 @@ test {
 
 ///|
 test {
-  @test.assert_eq(
-    unicodify_univariate_polynomial([-1, 0, 1]),
-    "-x² + 1",
-  )
+  @test.assert_eq(unicodify_univariate_polynomial([-1, 0, 1]), "-x² + 1")
   @test.assert_eq(unicodify_monomial("x", "-1", "1"), "-x")
   @test.assert_eq(unicodify_monomial("x", "-1", "3"), "-x³")
 }

@@ -1,5 +1,5 @@
 ///|
-const SMALL_PRIMES_LENGTH : Int = 1229
+pub const SMALL_PRIMES_LENGTH : Int = 1229
 
 ///|
 /// All prime numbers up to 10000
