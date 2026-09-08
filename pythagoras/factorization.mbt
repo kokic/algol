@@ -17,6 +17,8 @@ pub fn[E : Compare, P : Compare] sorted_factors(
 ///|
 /// This function assumes that `n` has no prime factors greater than 9973 (i.e., n ≤ 9973² = 99460729). 
 /// The returned result does not contain 1. 
+/// 
+/// Time complexity: (O(π(√n)) = O(√n/log n)), assuming arithmetic operations are (O(1)). Given the fixed input bound (n ≤ 9973²), the actual running time is bounded by a constant.
 pub fn factor9973(n : Int) -> HashMap[Int, Int] raise InvokeError {
   guard 0 < n && n <= 99460729 else {
     raise InvalidInput(

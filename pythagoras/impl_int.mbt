@@ -10,3 +10,16 @@ pub impl HasOne for Int with fn one() {
 
 ///|
 pub impl Abs for Int
+
+///|
+pub impl HasNil for BigInt with fn nil() {
+  0
+}
+
+///|
+pub impl HasOne for BigInt with fn one() {
+  1
+}
+
+///|
+pub impl Abs for BigInt
