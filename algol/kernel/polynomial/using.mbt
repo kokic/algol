@@ -11,7 +11,6 @@ using @number {
   rat_one,
   rational_root_candidates,
   is_root,
-  gcd,
   str_abs,
 }
 

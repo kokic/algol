@@ -4,6 +4,7 @@ version = "0.1.0"
 
 import {
   "kokic/prime@0.1.8",
+  "kokic/pythagoras@0.1.0",
   "moonbitlang/x@0.5.1",
 }
 

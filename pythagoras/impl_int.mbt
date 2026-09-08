@@ -12,6 +12,9 @@ pub impl HasOne for Int with fn one() {
 pub impl Abs for Int
 
 ///|
+pub impl Signum for Int
+
+///|
 pub impl HasNil for BigInt with fn nil() {
   0
 }
@@ -23,3 +26,6 @@ pub impl HasOne for BigInt with fn one() {
 
 ///|
 pub impl Abs for BigInt
+
+///|
+pub impl Signum for BigInt

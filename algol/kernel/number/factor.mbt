@@ -51,11 +51,11 @@ pub fn pollard_rho_brent_loop(
       v = v * @prime.abs(t - s) % n
       guard !v.is_zero() else { return n }
       if step % k == 0 {
-        let d = gcd(v, n)
+        let d = @pythagoras.gcd(v, n)
         guard !(d > 1) else { return d }
       }
     }
-    let d = gcd(v, n)
+    let d = @pythagoras.gcd(v, n)
     guard !(d > 1) else { return d }
   }
 }

@@ -780,7 +780,11 @@ fn polynomial_content_bigint(poly : Polynomial[BigInt]) -> BigInt {
   let mut content = 0N
   for _, term in poly.terms {
     let coeff_abs = @prime.abs(term.coeff)
-    content = if content == 0N { coeff_abs } else { gcd(content, coeff_abs) }
+    content = if content == 0N {
+      coeff_abs
+    } else {
+      @pythagoras.gcd(content, coeff_abs)
+    }
   }
   content
 }

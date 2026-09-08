@@ -6,5 +6,6 @@ import {
   "moonbitlang/core/test",
   "moonbitlang/x/rational",
   "kokic/prime",
+  "kokic/pythagoras",
   "kokic/algol/kernel/core",
 }

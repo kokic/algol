@@ -1,27 +1,4 @@
 ///|
-/// Also see: https://github.com/moonbitlang/x/blob/9cd244e9dc63d3fe253d767d9932a4d9bc27d10d/decimal/decimal.mbt#L452-L460
-pub fn signum(a : BigInt) -> Int {
-  if a.is_zero() {
-    0
-  } else if a > 0 {
-    1
-  } else {
-    -1
-  }
-}
-
-///|
-/// Also see: https://github.com/moonbitlang/x/blob/9cd244e9dc63d3fe253d767d9932a4d9bc27d10d/rational/rational.mbt#L19-L26
-pub fn gcd(a : BigInt, b : BigInt) -> BigInt {
-  for a = a, b = b {
-    if signum(b) == 0 {
-      break if a < 0N { -a } else { a }
-    }
-    continue b, a % b
-  }
-}
-
-///|
 pub fn random(rand : @random.Rand, limit : BigInt) -> BigInt {
   // limit <= 1 means the range [0, limit) is empty or degenerate
   guard limit > 1 else { return 0 }
@@ -55,11 +32,6 @@ pub impl Semiring for BigInt with fn one() {
 }
 
 ///|
-// pub impl Semiring for BigInt with fn is_zero(self) {
-//   self.is_zero()
-// }
-
-///|
 pub impl Ring for BigInt with fn neg(self : BigInt) -> BigInt {
   -self
 }
@@ -80,7 +52,7 @@ pub impl EuclideanDomain for BigInt with fn abs(self : BigInt) -> BigInt {
 
 ///|
 pub impl EuclideanDomain for BigInt with fn signum(self : BigInt) -> Int {
-  signum(self)
+  @pythagoras.signum(self)
 }
 
 ///|
