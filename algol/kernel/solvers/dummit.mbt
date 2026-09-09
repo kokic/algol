@@ -28,7 +28,7 @@ fn format_bigrat_array(values : Array[@rational.BigRational]) -> String {
 fn build_quintic_solvability_report(
   check_name : String,
   descent_coeffs : Array[BigInt],
-) -> Writer[QuinticSolvabilityReport] {
+) -> Writer[QuinticSolvabilityReport] raise InvokeError {
   let ascent_coeffs = descent_coeffs.rev()
   let roots = @pythagoras.rational_root_candidates(ascent_coeffs).filter(r => {
     @pythagoras.is_root(ascent_coeffs, r)
@@ -56,7 +56,7 @@ fn build_quintic_solvability_report(
 pub fn check_quintic_ab_solvability(
   a : BigInt,
   b : BigInt,
-) -> Writer[QuinticSolvabilityReport] {
+) -> Writer[QuinticSolvabilityReport] raise InvokeError {
   build_quintic_solvability_report(
     "is_quintic_ab_solvable",
     quintic_ab_coeff(a, b),
@@ -65,7 +65,7 @@ pub fn check_quintic_ab_solvability(
 
 ///|
 /// Return whether quintic equation x^5 + ax + b is solvable.
-pub fn is_quintic_ab_solvable(a : BigInt, b : BigInt) -> Bool {
+pub fn is_quintic_ab_solvable(a : BigInt, b : BigInt) -> Bool raise InvokeError {
   check_quintic_ab_solvability(a, b).value.solvable
 }
 
@@ -162,7 +162,7 @@ pub fn check_quintic_pqrs_solvability(
   q : BigInt,
   r : BigInt,
   s : BigInt,
-) -> Writer[QuinticSolvabilityReport] {
+) -> Writer[QuinticSolvabilityReport] raise InvokeError {
   build_quintic_solvability_report(
     "is_quintic_pqrs_solvable",
     quintic_pqrs_coeff(p, q, r, s),
@@ -176,7 +176,7 @@ pub fn is_quintic_pqrs_solvable(
   q : BigInt,
   r : BigInt,
   s : BigInt,
-) -> Bool {
+) -> Bool raise InvokeError {
   check_quintic_pqrs_solvability(p, q, r, s).value.solvable
 }
 

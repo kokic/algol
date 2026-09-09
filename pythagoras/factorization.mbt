@@ -2,19 +2,6 @@
 using @hashmap {type HashMap}
 
 ///|
-pub type Factorization[N, P] = (N) -> HashMap[N, P] raise InvokeError
-
-///|
-pub fn[E : Compare, P : Compare] sorted_factors(
-  n : E,
-  f : Factorization[E, P],
-) -> Array[(E, P)] raise InvokeError {
-  let factors = f(n).to_array()
-  factors.sort()
-  factors
-}
-
-///|
 /// This function assumes that `n` has no prime factors greater than 9973 (i.e., n ≤ 9973² = 99460729). 
 /// The returned result does not contain 1. 
 /// 
@@ -40,6 +27,19 @@ pub fn factor9973(n : Int) -> HashMap[Int, Int] raise InvokeError {
 
   guard phase != 1 else { factors }
   factors[phase] = 1
+  factors
+}
+
+///|
+pub type Factorization[N, P] = (N) -> HashMap[N, P] raise InvokeError
+
+///|
+pub fn[E : Compare, P : Compare] sorted_factors(
+  n : E,
+  f : Factorization[E, P],
+) -> Array[(E, P)] raise InvokeError {
+  let factors = f(n).to_array()
+  factors.sort()
   factors
 }
 
@@ -80,20 +80,23 @@ test {
 }
 
 ///|
-pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] {
-  let mut n = n
+pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] raise InvokeError {
+  guard 0N < n else {
+    raise InvalidInput(msg="This factorization is only valid for 0 < n.")
+  }
+  let mut phase = n
   let factors = @hashmap.HashMap([])
-  while n > 1 {
-    let p = prime_factor_descent(n)
-    if p == n {
+  while phase > 1 {
+    let prime = prime_factor_descent(phase)
+    if prime == phase {
       // n is prime, or Pollard's rho gave up on a composite n
-      guard @prime.is_prime(n) else { break }
-      factors[n] = factors.get(n).unwrap_or(0) + 1
+      guard @prime.is_prime(phase) else { break }
+      factors[phase] = factors.get(phase).unwrap_or(0) + 1
       break
     }
-    let count = factors.get(p).unwrap_or(0) + 1
-    factors[p] = count
-    n = n / p
+    let count = factors.get(prime).unwrap_or(0) + 1
+    factors[prime] = count
+    phase = phase / prime
   }
   factors
 }

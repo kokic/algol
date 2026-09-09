@@ -1,6 +1,8 @@
 ///|
 using @core {join}
 
+using @pythagoras {type InvokeError}
+
 ///|
 using @number {
   unicodify_univariate_polynomial,

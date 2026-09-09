@@ -1,30 +1,4 @@
 ///|
-/// All positive m such that m | n
-pub fn generate_divisors(n : BigInt) -> Array[BigInt] {
-  guard n != 0 else { [] }
-  let factors = factor(@prime.abs(n))
-  let mut divisors = [1N]
-  for p, exp in factors {
-    let p_big = p
-    let mut power = 1N
-    // precompute powers [1, p, p^2, ..., p^exp]
-    let powers = [power]
-    for _ in 1..<=exp {
-      power = power * p_big
-      powers.push(power)
-    }
-    let new_divisors = []
-    for d in divisors {
-      for pow in powers {
-        new_divisors.push(d * pow)
-      }
-    }
-    divisors = new_divisors
-  }
-  divisors
-}
-
-///|
 fn drop_constant_term(coeffs : Array[BigInt]) -> Array[BigInt] {
   Array::makei(coeffs.length() - 1, i => coeffs[i + 1])
 }
@@ -55,7 +29,7 @@ pub fn cauchy_bound(coeffs : Array[BigInt]) -> BigInt raise {
 }
 
 ///|
-pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
+pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] raise InvokeError {
   guard n != 0 else { [] }
   guard bound >= 1 else { [] }
   let factors = factor(@prime.abs(n))
@@ -87,17 +61,11 @@ pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
 }
 
 ///|
-test "Generate divisors" {
-  assert_eq(generate_divisors(52), [1, 2, 4, 13, 26, 52])
-  assert_eq(generate_divisors(-52), [1, 2, 4, 13, 26, 52])
-}
-
-///|
 /// ### Parameters
 /// * `coeffs` : [a_0, a_1, ..., a_n]
 pub fn rational_root_candidates(
   coeffs : Array[BigInt],
-) -> Array[@rational.BigRational] {
+) -> Array[@rational.BigRational] raise InvokeError {
   let length = coeffs.length()
   guard length >= 1 else { [] }
 
@@ -118,8 +86,8 @@ pub fn rational_root_candidates(
   }
   let a_n = coeffs[length - 1]
   let bound = try! cauchy_bound(coeffs)
-  let ps = generate_divisors(@prime.abs(a_0))
-  let qs = generate_divisors(@prime.abs(a_n))
+  let ps = divisors(abs(a_0), factor)
+  let qs = divisors(abs(a_n), factor)
   // Should be replaced with @hashset.HashSet in the future
   let cases : Array[@rational.BigRational] = Array(
     capacity=2 * ps.length() * qs.length(),
