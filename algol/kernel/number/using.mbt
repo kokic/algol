@@ -1,2 +1,2 @@
 ///|
-using @core {min, join, to_super_string}
+using @core {to_super_string}

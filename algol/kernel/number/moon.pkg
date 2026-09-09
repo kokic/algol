@@ -1,9 +1,6 @@
 import {
-  "moonbitlang/core/hashmap",
-  "moonbitlang/core/random",
   "moonbitlang/core/test",
   "moonbitlang/x/rational",
-  "kokic/prime",
   "kokic/pythagoras",
   "kokic/algol/kernel/core",
 }

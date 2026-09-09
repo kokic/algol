@@ -88,8 +88,8 @@ pub fn generate_divisors_bounded(n : BigInt, bound : BigInt) -> Array[BigInt] {
 
 ///|
 test "Generate divisors" {
-  @test.assert_eq(generate_divisors(52), [1, 2, 4, 13, 26, 52])
-  @test.assert_eq(generate_divisors(-52), [1, 2, 4, 13, 26, 52])
+  assert_eq(generate_divisors(52), [1, 2, 4, 13, 26, 52])
+  assert_eq(generate_divisors(-52), [1, 2, 4, 13, 26, 52])
 }
 
 ///|
