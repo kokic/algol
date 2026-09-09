@@ -4,7 +4,7 @@ version = "0.1.0"
 
 import {
   "kokic/prime@0.2.0",
-  "moonbitlang/x@0.5.1",
+  "moonbitlang/x@0.5.4",
 }
 
 readme = "README.md"
