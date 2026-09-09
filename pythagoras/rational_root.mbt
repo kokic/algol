@@ -69,19 +69,13 @@ pub fn generate_divisors_bounded(
 pub fn rational_root_candidates(
   coeffs : Array[BigInt],
 ) -> Array[@rational.BigRational] raise InvokeError {
-  let mut end = coeffs.length()
-  while end > 0 && coeffs[end - 1] == 0 {
-    end -= 1
-  }
-  guard end > 0 else {
+  guard coeffs.search_by(coeff => coeff != 0) is Some(start) else {
     raise InvalidInput(
       msg="the zero polynomial has infinitely many rational roots",
     )
   }
-  let mut start = 0
-  while start < end && coeffs[start] == 0 {
-    start += 1
-  }
+  let end = coeffs.length() -
+    coeffs.rev_iter().take_while(coeff => coeff == 0).count()
   let cases : Array[@rational.BigRational] = [..if start > 0 { [rat_zero] }]
   guard end - start > 1 else { cases }
   let coeffs = Array::makei(end - start, i => coeffs[start + i])
