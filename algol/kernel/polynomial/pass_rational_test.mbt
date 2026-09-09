@@ -8,9 +8,9 @@ test "Univariate coeff extraction and rational evaluation" {
 
   let three_half = @rational.new(3N, 2N).unwrap()
   let one_half = @rational.new(1N, 2N).unwrap()
-  let poly_q = Polynomial::from_term(vars, [2], rat_one) +
+  let poly_q = Polynomial::from_term(vars, [2], @pythagoras.rat_one) +
     Polynomial::from_term(vars, [1], -three_half) +
-    Polynomial::from_constant(vars, rat_one)
+    Polynomial::from_constant(vars, @pythagoras.rat_one)
   @test.assert_eq(poly_q.eval(one_half), one_half)
 }
 

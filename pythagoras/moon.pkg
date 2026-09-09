@@ -1,4 +1,7 @@
 import {
   "kokic/prime",
   "moonbitlang/core/hashmap",
+  "moonbitlang/core/env",
+  "moonbitlang/core/random",
+  "moonbitlang/x/rational",
 }

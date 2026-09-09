@@ -1,10 +1,10 @@
 ///|
 using @core {join}
 
+using @pythagoras {rat_one, rat_zero}
+
 ///|
 using @number {
-  rational_root_candidates,
-  is_root,
   unicodify_univariate_polynomial,
 }
 

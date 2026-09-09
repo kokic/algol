@@ -30,8 +30,8 @@ fn build_quintic_solvability_report(
   descent_coeffs : Array[BigInt],
 ) -> Writer[QuinticSolvabilityReport] {
   let ascent_coeffs = descent_coeffs.rev()
-  let roots = rational_root_candidates(ascent_coeffs).filter(r => {
-    is_root(ascent_coeffs, r)
+  let roots = @pythagoras.rational_root_candidates(ascent_coeffs).filter(r => {
+    @pythagoras.is_root(ascent_coeffs, r)
   })
   let resolvent = unicodify_univariate_polynomial(descent_coeffs)
   let proof_log = step(

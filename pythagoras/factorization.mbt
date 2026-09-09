@@ -53,3 +53,56 @@ test "small factorize for n < 10007" {
   assert_true(sorted_factors(10008, factor9973) == [(2, 3), (3, 2), (139, 1)])
   assert_true(sorted_factors(9973 * 9973, factor9973) == [(9973, 2)])
 }
+
+///|
+/// n ← min(a, n/a) where a is a non-trivial factor of n found via Pollard's rho.
+pub fn prime_factor_descent(n : BigInt) -> BigInt {
+  guard !n.is_zero() else { 0 }
+  guard n > 3 && !@prime.is_prime(n) else { n }
+  let mut n = n
+  while n > 1 {
+    let a = pollard_rho_brent(n)
+    guard !@prime.is_prime(a) else { return a }
+    let q = n / a
+    // q == 1 means pollard_rho_brent failed and returned n itself
+    guard q > 1 else { return n }
+    guard !@prime.is_prime(q) else { return q }
+    n = min(a, q)
+  }
+  n
+}
+
+///|
+test {
+  // 1235589577 = 26479 × 46663
+  let factor = prime_factor_descent(1235589577)
+  assert_true(factor == 26479 || factor == 46663)
+}
+
+///|
+pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] {
+  let mut n = n
+  let factors = @hashmap.HashMap([])
+  while n > 1 {
+    let p = prime_factor_descent(n)
+    if p == n {
+      // n is prime, or Pollard's rho gave up on a composite n
+      guard @prime.is_prime(n) else { break }
+      factors[n] = factors.get(n).unwrap_or(0) + 1
+      break
+    }
+    let count = factors.get(p).unwrap_or(0) + 1
+    factors[p] = count
+    n = n / p
+  }
+  factors
+}
+
+///|
+test "factor handles small and repeated prime factors" {
+  assert_eq(factor(1N).length(), 0)
+  assert_eq(factor(2N)[2N], 1)
+  assert_eq(factor(16N)[2N], 4)
+  assert_eq(factor(52N)[2N], 2)
+  assert_eq(factor(52N)[13N], 1)
+}

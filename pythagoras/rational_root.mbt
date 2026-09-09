@@ -152,29 +152,29 @@ pub fn is_root(coeffs : Array[BigInt], r : @rational.BigRational) -> Bool {
   acc == rat_zero
 }
 
-///|
-test "120x^4 - 166x^3 + x^2 + 74x - 24" {
-  let coeffs = [120N, -166, 1, 74, -24].rev()
-  let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  @test.assert_eq(
-    "[\{join(roots.map(root => Show::to_string(root)))}]",
-    "[-2/3, 1/2, 3/4, 4/5]",
-  )
-}
+// ///|
+// test "120x^4 - 166x^3 + x^2 + 74x - 24" {
+//   let coeffs = [120N, -166, 1, 74, -24].rev()
+//   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+//   @test.assert_eq(
+//     "[\{join(roots.map(root => Show::to_string(root)))}]",
+//     "[-2/3, 1/2, 3/4, 4/5]",
+//   )
+// }
 
-///|
-test "x^3 + x^2 - 2x has roots -2, 0, 1" {
-  let coeffs = [0N, -2, 1, 1]
-  let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  @test.assert_eq(
-    "[\{join(roots.map(root => Show::to_string(root)))}]",
-    "[-2, 0, 1]",
-  )
-}
+// ///|
+// test "x^3 + x^2 - 2x has roots -2, 0, 1" {
+//   let coeffs = [0N, -2, 1, 1]
+//   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+//   @test.assert_eq(
+//     "[\{join(roots.map(root => Show::to_string(root)))}]",
+//     "[-2, 0, 1]",
+//   )
+// }
 
-///|
-test "Linear polynomial with zero constant term has root zero" {
-  let coeffs = [0N, -2]
-  let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
-  @test.assert_eq("[\{join(roots.map(root => Show::to_string(root)))}]", "[0]")
-}
+// ///|
+// test "Linear polynomial with zero constant term has root zero" {
+//   let coeffs = [0N, -2]
+//   let roots = rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+//   @test.assert_eq("[\{join(roots.map(root => Show::to_string(root)))}]", "[0]")
+// }

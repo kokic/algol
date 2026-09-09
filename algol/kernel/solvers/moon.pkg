@@ -4,4 +4,5 @@ import {
   "kokic/algol/kernel/core",
   "kokic/algol/kernel/number",
   "kokic/algol/kernel/writer",
+  "kokic/pythagoras",
 }

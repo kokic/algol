@@ -13,7 +13,7 @@ pub fn pollard_rho_brent(
   k? : Int = 128,
   c? : (@random.Rand) -> BigInt = rand => random_range(rand, 1, n - 1),
   f? : (BigInt, BigInt, BigInt) -> BigInt = (t, c, n) => (t * t + c).mod(n),
-  rand? : @random.Rand = @random.Rand::chacha8(seed=generate_time_based_seed()),
+  rand? : @random.Rand = random_time_based(),
   retry? : Int = 10,
 ) -> BigInt {
   for _ in 0..<retry {
@@ -37,7 +37,7 @@ pub fn pollard_rho_brent_loop(
   k? : Int = 128,
   c? : (@random.Rand) -> BigInt = rand => random_range(rand, 1, n - 1),
   f? : (BigInt, BigInt, BigInt) -> BigInt = (t, c, n) => (t * t + c).mod(n),
-  rand? : @random.Rand = @random.Rand::chacha8(seed=generate_time_based_seed()),
+  rand? : @random.Rand = random_time_based(),
 ) -> BigInt {
   guard n > 2 else { n }
   guard @prime.is_odd(n) else { n >> 1 }
@@ -51,55 +51,11 @@ pub fn pollard_rho_brent_loop(
       v = v * @prime.abs(t - s) % n
       guard !v.is_zero() else { return n }
       if step % k == 0 {
-        let d = @pythagoras.gcd(v, n)
+        let d = gcd(v, n)
         guard !(d > 1) else { return d }
       }
     }
-    let d = @pythagoras.gcd(v, n)
+    let d = gcd(v, n)
     guard !(d > 1) else { return d }
   }
-}
-
-///|
-/// n ← min(a, n/a) where a is a non-trivial factor of n found via Pollard's rho.
-pub fn prime_factor_descent(n : BigInt) -> BigInt {
-  guard !n.is_zero() else { 0 }
-  guard n > 3 && !@prime.is_prime(n) else { n }
-  let mut n = n
-  while n > 1 {
-    let a = pollard_rho_brent(n)
-    guard !@prime.is_prime(a) else { return a }
-    let q = n / a
-    // q == 1 means pollard_rho_brent failed and returned n itself
-    guard q > 1 else { return n }
-    guard !@prime.is_prime(q) else { return q }
-    n = min(a, q)
-  }
-  n
-}
-
-///|
-test {
-  // 1235589577 = 26479 × 46663
-  let factor = prime_factor_descent(1235589577)
-  assert_true(factor == 26479 || factor == 46663)
-}
-
-///|
-pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] {
-  let mut n = n
-  let factors = @hashmap.HashMap([])
-  while n > 1 {
-    let p = prime_factor_descent(n)
-    if p == n {
-      // n is prime, or Pollard's rho gave up on a composite n
-      guard @prime.is_prime(n) else { break }
-      factors[n] = factors.get(n).unwrap_or(0) + 1
-      break
-    }
-    let count = factors.get(p).unwrap_or(0) + 1
-    factors[p] = count
-    n = n / p
-  }
-  factors
 }

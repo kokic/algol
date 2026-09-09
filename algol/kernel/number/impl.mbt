@@ -1,31 +1,14 @@
-///|
-pub let rat_zero : @rational.BigRational = @rational.new(0N, 1).unwrap()
 
-///|
-pub let rat_one : @rational.BigRational = @rational.new(1N, 1).unwrap()
-
-///|
-pub let rat_two : @rational.BigRational = @rational.new(2N, 1).unwrap()
-
-///|
-pub let rat_neg_one : @rational.BigRational = @rational.new(-1N, 1).unwrap()
 
 ///|
 pub impl Semiring for @rational.BigRational with fn zero() {
-  rat_zero
+  @pythagoras.rat_zero
 }
 
 ///|
 pub impl Semiring for @rational.BigRational with fn one() -> @rational.BigRational {
-  rat_one
+  @pythagoras.rat_one
 }
-
-// ///|
-// pub impl Semiring for @rational.BigRational with fn is_zero(
-//   self : @rational.BigRational,
-// ) -> Bool {
-//   self == rat_zero
-// }
 
 ///|
 pub impl Ring for @rational.BigRational with fn neg(

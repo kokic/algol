@@ -7,10 +7,6 @@ using @number {
   trait Ring,
   trait Field,
   trait ToUnicode,
-  rat_zero,
-  rat_one,
-  rational_root_candidates,
-  is_root,
   str_abs,
 }
 

@@ -1,27 +1,4 @@
 ///|
-pub fn random(rand : @random.Rand, limit : BigInt) -> BigInt {
-  // limit <= 1 means the range [0, limit) is empty or degenerate
-  guard limit > 1 else { return 0 }
-  let k = limit.bit_length()
-  let two_pow_k = (1 : BigInt) << k
-  let threshold = two_pow_k - two_pow_k % limit
-  let mut x = rand.bigint(k)
-  while x >= threshold {
-    x = rand.bigint(k)
-  }
-  x % limit
-}
-
-///|
-pub fn random_range(
-  rand : @random.Rand,
-  inclusive : BigInt,
-  exclusive : BigInt,
-) -> BigInt {
-  inclusive + random(rand, exclusive - inclusive)
-}
-
-///|
 pub impl Semiring for BigInt with fn zero() {
   0N
 }

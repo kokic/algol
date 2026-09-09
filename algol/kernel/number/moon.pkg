@@ -1,6 +1,4 @@
 import {
-  "moonbitlang/core/bigint",
-  "moonbitlang/core/env",
   "moonbitlang/core/hashmap",
   "moonbitlang/core/random",
   "moonbitlang/core/test",

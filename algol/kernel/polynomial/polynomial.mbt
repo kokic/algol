@@ -264,7 +264,7 @@ fn linear_factor_from_root(
   vars : Array[String],
   root : @rational.BigRational,
 ) -> Polynomial[@rational.BigRational] raise {
-  Polynomial::from_term(vars, [1], rat_one) +
+  Polynomial::from_term(vars, [1], @pythagoras.rat_one) +
   Polynomial::from_constant(vars, -root)
 }
 
@@ -296,7 +296,9 @@ pub fn Polynomial::find_rational_roots(
 ) -> Array[@rational.BigRational] raise {
   let coeffs = poly.to_univariate_coeffs()
   guard coeffs.length() > 1 else { [] }
-  rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+  @pythagoras.rational_root_candidates(coeffs).filter(r => {
+    @pythagoras.is_root(coeffs, r)
+  })
 }
 
 ///|
@@ -578,7 +580,7 @@ fn common_divisor_from_monomial_quotients(
     }
     guard increment_exps_within_bounds(exps, bounds) else { break }
   }
-  Polynomial::from_constant(candidate.vars, rat_one)
+  Polynomial::from_constant(candidate.vars, @pythagoras.rat_one)
 }
 
 ///|
@@ -627,7 +629,7 @@ pub fn Polynomial::gcd_multivariate(
         common_divisor_from_monomial_quotients(candidate, a_q, b_q)
       }
     }
-    None => Polynomial::from_constant(a.vars, rat_one)
+    None => Polynomial::from_constant(a.vars, @pythagoras.rat_one)
   }
 }
 
@@ -759,7 +761,9 @@ fn specialized_rational_roots_at_zero(
 ) -> Array[@rational.BigRational] raise {
   let coeffs = specialized_univariate_coeffs_at_zero(poly, target_var_index)
   guard coeffs.length() > 1 else { [] }
-  rational_root_candidates(coeffs).filter(r => is_root(coeffs, r))
+  @pythagoras.rational_root_candidates(coeffs).filter(r => {
+    @pythagoras.is_root(coeffs, r)
+  })
 }
 
 ///|
@@ -824,7 +828,7 @@ fn linear_factor_for_var(
 ) -> Polynomial[@rational.BigRational] raise {
   assert_true(0 <= var_index && var_index < vars.length())
   let exps = Array::makei(vars.length(), i => if i == var_index { 1 } else { 0 })
-  let var_term = Polynomial::from_term(vars, exps, rat_one)
+  let var_term = Polynomial::from_term(vars, exps, @pythagoras.rat_one)
   let const_term = Polynomial::from_constant(vars, -root)
   var_term + const_term
 }
@@ -922,7 +926,7 @@ pub fn Polynomial::factor_multivariate_full_report(
     )
     return Writer::new(
       FactorMultivariateFullReport::{
-        content: rat_zero,
+        content: @pythagoras.rat_zero,
         factors: [],
         primitive_remainder: remainder,
         remainder,
@@ -1216,10 +1220,10 @@ test "Polynomial addition and multiplication with BigInt" {
 ///|
 test "Polynomial division with BigRat" {
   let vars = ["x"]
-  let u = Polynomial::from_term(vars, [2], rat_one) +
-    Polynomial::from_constant(vars, rat_one)
-  let v = Polynomial::from_term(vars, [1], rat_one) +
-    Polynomial::from_constant(vars, rat_one)
+  let u = Polynomial::from_term(vars, [2], @pythagoras.rat_one) +
+    Polynomial::from_constant(vars, @pythagoras.rat_one)
+  let v = Polynomial::from_term(vars, [1], @pythagoras.rat_one) +
+    Polynomial::from_constant(vars, @pythagoras.rat_one)
   let (q, r) = u.div_rem(v).unwrap()
   @test.assert_eq(
     "\{u.unicodify()} = (\{v.unicodify()})(\{q.unicodify()}) + \{r.unicodify()}",
