@@ -783,7 +783,7 @@ fn polynomial_content_bigint(poly : Polynomial[BigInt]) -> BigInt {
   guard !poly.terms.is_empty() else { 0N }
   let mut content = 0N
   for _, term in poly.terms {
-    let coeff_abs = @prime.abs(term.coeff)
+    let coeff_abs = @pythagoras.abs(term.coeff)
     content = if content == 0N {
       coeff_abs
     } else {
