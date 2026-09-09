@@ -48,7 +48,7 @@ pub fn pollard_rho_brent_loop(
     let mut v : BigInt = 1
     for step in 1..<=goal {
       t = f(t, c, n)
-      v = v * @prime.abs(t - s) % n
+      v = v * abs(t - s) % n
       guard !v.is_zero() else { return n }
       if step % k == 0 {
         let d = gcd(v, n)

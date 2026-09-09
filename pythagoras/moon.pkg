@@ -5,3 +5,7 @@ import {
   "moonbitlang/core/random",
   "moonbitlang/x/rational",
 }
+
+import {
+  "moonbitlang/core/test",
+} for "wbtest"

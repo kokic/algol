@@ -80,19 +80,26 @@ test {
 }
 
 ///|
+/// Returns a complete prime factorization, or raises if factor search fails.
 pub fn factor(n : BigInt) -> @hashmap.HashMap[BigInt, Int] raise InvokeError {
+  factor_with_descent(n, prime_factor_descent)
+}
+
+///|
+fn factor_with_descent(
+  n : BigInt,
+  descent : (BigInt) -> BigInt,
+) -> @hashmap.HashMap[BigInt, Int] raise InvokeError {
   guard 0N < n else {
     raise InvalidInput(msg="This factorization is only valid for 0 < n.")
   }
   let mut phase = n
   let factors = @hashmap.HashMap([])
   while phase > 1 {
-    let prime = prime_factor_descent(phase)
-    if prime == phase {
-      // n is prime, or Pollard's rho gave up on a composite n
-      guard @prime.is_prime(phase) else { break }
-      factors[phase] = factors.get(phase).unwrap_or(0) + 1
-      break
+    let prime = descent(phase)
+    // Descent can give up on a composite divisor smaller than phase too.
+    guard prime > 1 && phase % prime == 0 && @prime.is_prime(prime) else {
+      raise FactorizationFailed(remaining=phase)
     }
     let count = factors.get(prime).unwrap_or(0) + 1
     factors[prime] = count
