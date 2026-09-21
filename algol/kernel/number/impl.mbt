@@ -1,5 +1,3 @@
-
-
 ///|
 pub impl Semiring for @rational.BigRational with fn zero() {
   @pythagoras.rat_zero

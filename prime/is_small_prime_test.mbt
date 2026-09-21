@@ -17,6 +17,6 @@ fn trial_division_prime(n : Int) -> Bool {
 ///|
 test "is_small_prime exact for [0, 10000)" {
   for n = 0; n < 10000; n = n + 1 {
-    assert_eq(is_small_prime(n), trial_division_prime(n))
+    assert_eq(@prime.is_small_prime(n), trial_division_prime(n))
   }
 }

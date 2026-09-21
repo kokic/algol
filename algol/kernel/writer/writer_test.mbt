@@ -1,5 +1,5 @@
 ///|
-using @writer {type TraceValue, type Writer, text, field, step, sequence }
+using @writer {type TraceValue, type Writer, text, field, step, sequence}
 
 ///|
 test "Trace append has stable sibling order" {

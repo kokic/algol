@@ -220,6 +220,17 @@ fn is_perfect_square(n : BigInt) -> Bool {
 /// Also see: @math.is_probable_prime
 pub fn is_probable_prime_bpsw(n : BigInt) -> Bool {
   guard n >= 2 else { false }
+  // For `n < 2^63` the whole test runs in machine words (see `bpsw_u64.mbt`),
+  // which is dramatically faster than the allocating `BigInt` path below.
+  if n.bit_length() <= 63 {
+    return is_probable_prime_bpsw_u64(n.to_uint64())
+  }
+  is_probable_prime_bpsw_bigint(n)
+}
+
+///|
+/// The `BigInt` BPSW path, used only for `n >= 2^63`.
+fn is_probable_prime_bpsw_bigint(n : BigInt) -> Bool {
   guard !(n == 2 || n == 3) else { true }
   guard is_odd(n) else { false }
   for p in trial_division_primes {
@@ -266,18 +277,18 @@ let trial_division_primes : Array[Int] = [
 /// 
 /// ```mbt check
 /// test "is_prime boundary regression" {
-///   assert_true(!is_prime(-1))
-///   assert_true(!is_prime(0))
-///   assert_true(!is_prime(1))
-///   assert_true(is_prime(2))
-///   assert_true(is_prime(3))
-///   assert_true(is_prime(5381))
-///   assert_true(is_prime(5387))
-///   assert_true(is_prime(9973))
-///   assert_true(!is_prime(9999))
-///   assert_true(!is_prime(10000))
-///   assert_true(!is_prime(10001))
-///   assert_true(is_prime(10007))
+///   assert_true(!@prime.is_prime(-1))
+///   assert_true(!@prime.is_prime(0))
+///   assert_true(!@prime.is_prime(1))
+///   assert_true(@prime.is_prime(2))
+///   assert_true(@prime.is_prime(3))
+///   assert_true(@prime.is_prime(5381))
+///   assert_true(@prime.is_prime(5387))
+///   assert_true(@prime.is_prime(9973))
+///   assert_true(!@prime.is_prime(9999))
+///   assert_true(!@prime.is_prime(10000))
+///   assert_true(!@prime.is_prime(10001))
+///   assert_true(@prime.is_prime(10007))
 /// }
 /// ```
 pub fn is_prime(n : BigInt) -> Bool {

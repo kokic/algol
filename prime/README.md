@@ -16,18 +16,21 @@ Efficient primality testing for MoonBit `BigInt`.
 ## Notes
 
 - The small-number path is optimized with a precomputed prime table and a narrow lookup window.
-- The large-number path combines Miller-Rabin (base 2) and strong Lucas-Selfridge.
+- `is_probable_prime_bpsw` does its arithmetic in machine words (`UInt64` with Montgomery
+  reduction) whenever `n < 2^63`, avoiding `BigInt`'s per-operation allocation; the
+  `BigInt` path (Miller-Rabin base 2 + strong Lucas-Selfridge) runs above that.
+- Trial division covers the first 64 primes before the heavier tests.
 
 ## Benchmark
 
 ```
-$ moon bench -p kokic/prime/benchmarks --target native --release
+$ moon bench -p prime/benchmarks --target native --release
 
 name                            time (mean ± σ)         range (min … max)
-kokic/prime BPSW aggregate       391.42 µs ±   2.54 µs   387.84 µs … 395.03 µs  in 10 ×    256 runs
-core/math MR iters=1 aggregate   136.49 µs ± 968.35 ns   134.86 µs … 138.01 µs  in 10 ×    740 runs
-core/math MR iters=8 aggregate   708.71 µs ±   6.47 µs   698.48 µs … 716.75 µs  in 10 ×    140 runs
-core/math MR iters=64 aggregate    5.19 ms ±  45.90 µs     5.12 ms …   5.26 ms  in 10 ×     20 runs
+kokic/prime BPSW aggregate       527.34 µs ±   8.42 µs   518.28 µs … 543.90 µs  in 10 ×    192 runs
+core/math MR iters=1 aggregate   187.14 µs ±   3.10 µs   183.43 µs … 192.00 µs  in 10 ×    531 runs
+core/math MR iters=8 aggregate   493.30 µs ±  65.43 µs   409.35 µs … 597.68 µs  in 10 ×    249 runs
+core/math MR iters=64 aggregate    2.41 ms ± 131.27 µs     2.21 ms …   2.62 ms  in 10 ×     40 runs
 ```
 
 The benchmark also reports per-case timings for primes, probable primes, perfect-square composites, and base-2 strong pseudoprimes. `core/math` uses Miller-Rabin with a configurable iteration count; its default-equivalent comparison here is `iters=64`.
