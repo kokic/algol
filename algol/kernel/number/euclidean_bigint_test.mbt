@@ -1,4 +1,7 @@
 ///|
+using @number {trait EuclideanDomain}
+
+///|
 test "BigInt Euclidean div_mod_euclid keeps non-negative remainder" {
   let cases = [(17N, 5N), (17N, -5N), (-17N, 5N), (-17N, -5N)]
   for _, pair in cases {

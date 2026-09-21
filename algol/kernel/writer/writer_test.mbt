@@ -1,4 +1,7 @@
 ///|
+using @writer {type TraceValue, type Writer, text, field, step, sequence }
+
+///|
 test "Trace append has stable sibling order" {
   let first = text("first")
   let second = text("second")
