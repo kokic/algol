@@ -11,7 +11,6 @@
 /// 
 /// The modulus is always odd here — even candidates are rejected before any
 /// arithmetic — so Montgomery reduction with `R = 2^64` applies directly.
-#valtype
 priv struct U64Mod {
   n : UInt64
   /// `-n^{-1} mod 2^64`

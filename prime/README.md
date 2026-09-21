@@ -27,10 +27,10 @@ Efficient primality testing for MoonBit `BigInt`.
 $ moon bench -p prime/benchmarks --target native --release
 
 name                            time (mean ± σ)         range (min … max)
-kokic/prime BPSW aggregate       527.34 µs ±   8.42 µs   518.28 µs … 543.90 µs  in 10 ×    192 runs
-core/math MR iters=1 aggregate   187.14 µs ±   3.10 µs   183.43 µs … 192.00 µs  in 10 ×    531 runs
-core/math MR iters=8 aggregate   493.30 µs ±  65.43 µs   409.35 µs … 597.68 µs  in 10 ×    249 runs
-core/math MR iters=64 aggregate    2.41 ms ± 131.27 µs     2.21 ms …   2.62 ms  in 10 ×     40 runs
+kokic/prime BPSW aggregate       524.34 µs ±   2.55 µs   520.31 µs … 527.48 µs  in 10 ×    190 runs
+core/math MR iters=1 aggregate   185.23 µs ±   1.28 µs   183.20 µs … 186.87 µs  in 10 ×    536 runs
+core/math MR iters=8 aggregate   404.96 µs ±   5.88 µs   390.56 µs … 410.76 µs  in 10 ×    267 runs
+core/math MR iters=64 aggregate    2.21 ms ± 141.51 µs     1.99 ms …   2.53 ms  in 10 ×     47 runs
 ```
 
 The benchmark also reports per-case timings for primes, probable primes, perfect-square composites, and base-2 strong pseudoprimes. `core/math` uses Miller-Rabin with a configurable iteration count; its default-equivalent comparison here is `iters=64`.
